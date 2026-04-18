@@ -14,7 +14,7 @@ use ratatui::{
     Terminal,
 };
 use std::{error::Error, io};
-use monitor::{cpu::CpuMonitor, ResourceCollector};
+use monitor::{cpu::CpuMonitor, ram::RamMonitor, ResourceCollector};
 
 fn main() -> Result<(), Box<dyn Error>> {
     enable_raw_mode()?;
@@ -24,8 +24,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut terminal = Terminal::new(backend)?;
 
     let mut cpu_monitor = CpuMonitor::new();
+    let mut ram_monitor = RamMonitor::new();
 
-    let res = run_app(&mut terminal, &mut cpu_monitor);
+    let res = run_app(&mut terminal, &mut cpu_monitor, &mut ram_monitor);
 
     disable_raw_mode()?;
     execute!(
@@ -44,10 +45,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn run_app<B: Backend>(
     terminal: &mut Terminal<B>,
-    monitor: &mut CpuMonitor,
+    cpu_monitor: &mut CpuMonitor,
+    ram_monitor: &mut RamMonitor,
 ) -> io::Result<()> {
     loop {
-        let stats = monitor.fetch_stats().unwrap_or_else(|_| crate::model::ResourceStats {
+        let cpu_stats = cpu_monitor.fetch_stats().unwrap_or_else(|_| crate::model::ResourceStats {
+            label: "Error".to_string(),
+            value: 0.0,
+        });
+
+        let ram_stats = ram_monitor.fetch_stats().unwrap_or_else(|_| crate::model::ResourceStats {
             label: "Error".to_string(),
             value: 0.0,
         });
@@ -56,13 +63,24 @@ fn run_app<B: Backend>(
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
                 .margin(1)
-                .constraints([Constraint::Percentage(100)].as_ref())
+                .constraints(
+                    [
+                        Constraint::Percentage(50),
+                        Constraint::Percentage(50),
+                    ]
+                    .as_ref(),
+                )
                 .split(f.size());
 
-            let display_text = format!("{}: {}%", stats.label, stats.value);
-            let block = Paragraph::new(display_text)
-                .block(Block::default().title("Resource Monitor").borders(Borders::ALL));
-            f.render_widget(block, chunks[0]);
+            let cpu_text = format!("{}: {}%", cpu_stats.label, cpu_stats.value);
+            let cpu_block = Paragraph::new(cpu_text)
+                .block(Block::default().title("CPU").borders(Borders::ALL));
+            f.render_widget(cpu_block, chunks[0]);
+
+            let ram_text = format!("{}: {}%", ram_stats.label, ram_stats.value);
+            let ram_block = Paragraph::new(ram_text)
+                .block(Block::default().title("RAM").borders(Borders::ALL));
+            f.render_widget(ram_block, chunks[1]);
         })?;
 
         if event::poll(std::time::Duration::from_millis(1000))? {
