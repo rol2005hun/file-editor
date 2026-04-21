@@ -1,5 +1,5 @@
-use crate::document::Document;
-use crate::explorer::Explorer;
+use crate::core::document::Document;
+use crate::core::explorer::Explorer;
 use ratatui::layout::Rect;
 
 pub enum AppMode {
@@ -119,6 +119,16 @@ impl App {
             self.cursor_x = row_len;
         }
         self.adjust_scroll();
+    }
+
+    pub fn paste(&mut self, text: &str) {
+        for c in text.chars() {
+            if c == '\n' {
+                self.insert_newline();
+            } else if c != '\r' {
+                self.insert_char(c);
+            }
+        }
     }
 
     pub fn insert_char(&mut self, c: char) {

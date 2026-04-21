@@ -1,4 +1,4 @@
-use crate::error::{EditorError, Result};
+use crate::core::error::{EditorError, Result};
 use std::fs;
 use std::path::Path;
 
