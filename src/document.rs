@@ -11,7 +11,10 @@ impl TryFrom<&str> for Document {
     type Error = EditorError;
 
     fn try_from(content: &str) -> std::result::Result<Self, Self::Error> {
-        let rows: Vec<String> = content.lines().map(|line: &str| line.to_string()).collect();
+        let mut rows: Vec<String> = content.lines().map(|line: &str| line.to_string()).collect();
+        if rows.is_empty() {
+            rows.push(String::new());
+        }
         Ok(Document { rows, path: None })
     }
 }
@@ -45,6 +48,8 @@ impl Document {
             let row: &mut String = &mut self.rows[y];
             if x <= row.len() {
                 row.insert(x, c);
+            } else {
+                row.push(c);
             }
         }
     }
@@ -55,6 +60,18 @@ impl Document {
             if x > 0 && x <= row.len() {
                 row.remove(x - 1);
             }
+        }
+    }
+
+    pub fn insert_newline(&mut self, x: usize, y: usize) {
+        if y < self.rows.len() {
+            let row: &mut String = &mut self.rows[y];
+            let new_row: String = if x < row.len() {
+                row.split_off(x)
+            } else {
+                String::new()
+            };
+            self.rows.insert(y + 1, new_row);
         }
     }
 }

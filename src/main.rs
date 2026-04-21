@@ -178,7 +178,7 @@ where
                         .collect();
 
                     let list: List = List::new(items)
-                        .block(Block::default().borders(Borders::ALL).title("Main Menu"));
+                        .block(Block::default().borders(Borders::ALL).title(" Main Menu "));
                     f.render_widget(list, area);
                 }
                 AppMode::PromptFile(ref input) => {
@@ -281,6 +281,7 @@ where
                                             KeyCode::Esc => app.toggle_menu(),
                                             KeyCode::Char(c) => app.insert_char(c),
                                             KeyCode::Backspace => app.delete_char(),
+                                            KeyCode::Enter => app.insert_newline(),
                                             KeyCode::Left => app.move_cursor(-1, 0),
                                             KeyCode::Right => app.move_cursor(1, 0),
                                             KeyCode::Up => app.move_cursor(0, -1),
@@ -313,11 +314,9 @@ where
                                 && mouse_event.row >= app.editor_area.y + 1
                                 && mouse_event.row < app.editor_area.y + app.editor_area.height - 1
                             {
-                                app.cursor_x =
-                                    mouse_event.column - (app.editor_area.x + 1) + app.scroll_x;
-                                app.cursor_y =
-                                    mouse_event.row - (app.editor_area.y + 1) + app.scroll_y;
-                                app.adjust_scroll();
+                                let click_x: u16 = mouse_event.column.saturating_sub(app.editor_area.x + 1) + app.scroll_x;
+                                let click_y: u16 = mouse_event.row.saturating_sub(app.editor_area.y + 1) + app.scroll_y;
+                                app.handle_click(click_x, click_y);
                             }
                         }
                     }

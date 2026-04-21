@@ -106,6 +106,21 @@ impl App {
         }
     }
 
+    pub fn handle_click(&mut self, x: u16, y: u16) {
+        self.cursor_x = x;
+        self.cursor_y = y;
+
+        if (self.cursor_y as usize) >= self.document.rows.len() {
+            self.cursor_y = self.document.rows.len().saturating_sub(1) as u16;
+        }
+
+        let row_len: u16 = self.document.rows[self.cursor_y as usize].len() as u16;
+        if self.cursor_x > row_len {
+            self.cursor_x = row_len;
+        }
+        self.adjust_scroll();
+    }
+
     pub fn insert_char(&mut self, c: char) {
         self.document
             .insert(self.cursor_x as usize, self.cursor_y as usize, c);
@@ -119,18 +134,37 @@ impl App {
                 .delete(self.cursor_x as usize, self.cursor_y as usize);
             self.cursor_x -= 1;
             self.adjust_scroll();
+        } else if self.cursor_y > 0 {
+            let current_row: String = self.document.rows.remove(self.cursor_y as usize);
+            self.cursor_y -= 1;
+            let prev_row: &mut String = &mut self.document.rows[self.cursor_y as usize];
+            self.cursor_x = prev_row.len() as u16;
+            prev_row.push_str(&current_row);
+            self.adjust_scroll();
         }
+    }
+
+    pub fn insert_newline(&mut self) {
+        self.document
+            .insert_newline(self.cursor_x as usize, self.cursor_y as usize);
+        self.cursor_x = 0;
+        self.cursor_y += 1;
+        self.adjust_scroll();
     }
 
     pub fn move_cursor(&mut self, dx: i16, dy: i16) {
         let new_x: i16 = self.cursor_x as i16 + dx;
         let new_y: i16 = self.cursor_y as i16 + dy;
 
-        if new_x >= 0 {
-            self.cursor_x = new_x as u16;
-        }
-        if new_y >= 0 {
+        if new_y >= 0 && (new_y as usize) < self.document.rows.len() {
             self.cursor_y = new_y as u16;
+        }
+
+        let row_len: i16 = self.document.rows[self.cursor_y as usize].len() as i16;
+        if new_x >= 0 && new_x <= row_len {
+            self.cursor_x = new_x as u16;
+        } else if new_x > row_len {
+            self.cursor_x = row_len as u16;
         }
 
         self.adjust_scroll();
