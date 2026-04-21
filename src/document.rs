@@ -22,6 +22,26 @@ impl Document {
     }
 
     pub fn new() -> Self {
-        Document { rows: Vec::new() }
+        Document {
+            rows: vec![String::new()],
+        }
+    }
+
+    pub fn insert(&mut self, x: usize, y: usize, c: char) {
+        if y < self.rows.len() {
+            let row: &mut String = &mut self.rows[y];
+            if x <= row.len() {
+                row.insert(x, c);
+            }
+        }
+    }
+
+    pub fn delete(&mut self, x: usize, y: usize) {
+        if y < self.rows.len() {
+            let row: &mut String = &mut self.rows[y];
+            if x > 0 && x <= row.len() {
+                row.remove(x - 1);
+            }
+        }
     }
 }
