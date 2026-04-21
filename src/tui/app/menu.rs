@@ -1,4 +1,3 @@
-use crate::core::document::Document;
 use crate::tui::app::{App, AppMode};
 
 impl App {

@@ -17,7 +17,10 @@ pub fn render(f: &mut Frame, app: &App, area: Rect) {
     for (i, path) in app.explorer.items.iter().enumerate() {
         let name: std::borrow::Cow<'_, str> =
             path.file_name().unwrap_or_default().to_string_lossy();
-        let display_name: String = if path.is_dir() {
+        
+        let display_name: String = if Some(path.as_path()) == app.explorer.current_path.parent() {
+            "[..]".to_string()
+        } else if path.is_dir() {
             format!("[{}]", name)
         } else {
             name.to_string()

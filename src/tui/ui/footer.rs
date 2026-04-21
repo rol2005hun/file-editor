@@ -32,7 +32,7 @@ pub fn render_status(f: &mut Frame, app: &App, area: Rect) {
 pub fn render_help(f: &mut Frame, app: &App, area: Rect) {
     let help_text: String = match app.mode {
         AppMode::Editor => match app.focus {
-            AppFocus::Explorer => "Tab: Focus Editor | Enter: Open | n: New File | d: New Dir".to_string(),
+            AppFocus::Explorer => "Tab: Focus Editor | Enter: Open | N: New File | D: New Dir".to_string(),
             AppFocus::Editor => "Ctrl+S: Save | Ctrl+C: Copy Line | Ctrl+V: Paste | Tab: Focus Explorer".to_string(),
         },
         AppMode::Menu => "Enter: Select | Esc: Back | Up/Down: Navigate".to_string(),
