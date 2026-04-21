@@ -28,9 +28,10 @@ pub fn render(f: &mut Frame, app: &mut App) {
         .constraints([Constraint::Percentage(20), Constraint::Percentage(80)].as_ref())
         .split(vertical_chunks[0]);
 
+    app.explorer_area = horizontal_chunks[0];
     app.editor_area = horizontal_chunks[1];
 
-    sidebar::render(f, app, horizontal_chunks[0]);
+    sidebar::render(f, app, app.explorer_area);
     editor::render(f, app, app.editor_area);
     footer::render_status(f, app, vertical_chunks[1]);
     footer::render_help(f, app, vertical_chunks[2]);

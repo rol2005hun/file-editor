@@ -22,6 +22,7 @@ pub struct App {
     pub scroll_x: u16,
     pub scroll_y: u16,
     pub editor_area: Rect,
+    pub explorer_area: Rect,
     pub mode: AppMode,
     pub focus: AppFocus,
     pub menu_items: Vec<String>,
@@ -45,6 +46,7 @@ impl App {
             scroll_x: 0,
             scroll_y: 0,
             editor_area: Rect::default(),
+            explorer_area: Rect::default(),
             mode: AppMode::Editor,
             focus: AppFocus::Explorer,
             menu_items: vec![
