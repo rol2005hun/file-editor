@@ -9,6 +9,9 @@ pub fn handle_ctrl_shortcut(app: &mut App, code: KeyCode) {
                 KeyCode::Char('s') => {
                     let _ = app.document.save();
                 }
+                KeyCode::Char('z') => {
+                    app.undo();
+                }
                 KeyCode::Char('c') => {
                     if let Ok(mut clipboard) = Clipboard::new() {
                         if let Some(selected_text) = app.get_selected_text() {

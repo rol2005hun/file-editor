@@ -32,6 +32,7 @@ pub struct App {
     pub history: Vec<(Vec<String>, u16, u16)>,
     pub editor_area: Rect,
     pub explorer_area: Rect,
+    pub popup_area: Option<Rect>,
     pub mode: AppMode,
     pub focus: AppFocus,
     pub menu_items: Vec<String>,
@@ -59,6 +60,7 @@ impl App {
             history: Vec::new(),
             editor_area: Rect::default(),
             explorer_area: Rect::default(),
+            popup_area: None,
             mode: AppMode::Editor,
             focus: AppFocus::Explorer,
             menu_items: vec![

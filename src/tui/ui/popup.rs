@@ -8,10 +8,11 @@ use ratatui::{
     Frame,
 };
 
-pub fn render(f: &mut Frame, app: &App) {
+pub fn render(f: &mut Frame, app: &mut App) {
     match app.mode {
         AppMode::Settings(selection) => {
             let area: Rect = centered_rect(40, 30, f.area());
+            app.popup_area = Some(area);
             f.render_widget(Clear, area);
 
             let s1: &str = if app.config.show_line_numbers { "[X] Show Line Numbers" } else { "[ ] Show Line Numbers" };
@@ -36,6 +37,7 @@ pub fn render(f: &mut Frame, app: &App) {
         }
         AppMode::Menu => {
             let area: Rect = centered_rect(40, 40, f.area());
+            app.popup_area = Some(area);
             f.render_widget(Clear, area);
 
             let items: Vec<ListItem> = app
@@ -58,6 +60,7 @@ pub fn render(f: &mut Frame, app: &App) {
         }
         AppMode::PromptFile(ref input) => {
             let area: Rect = centered_rect(40, 20, f.area());
+            app.popup_area = Some(area);
             f.render_widget(Clear, area);
             let block: Paragraph = Paragraph::new(input.as_str())
                 .block(Block::default().borders(Borders::ALL).title(" New File Name "));
@@ -65,11 +68,14 @@ pub fn render(f: &mut Frame, app: &App) {
         }
         AppMode::PromptDir(ref input) => {
             let area: Rect = centered_rect(40, 20, f.area());
+            app.popup_area = Some(area);
             f.render_widget(Clear, area);
             let block: Paragraph = Paragraph::new(input.as_str())
                 .block(Block::default().borders(Borders::ALL).title(" New Directory Name "));
             f.render_widget(block, area);
         }
-        AppMode::Editor => {}
+        AppMode::Editor => {
+            app.popup_area = None;
+        }
     }
 }

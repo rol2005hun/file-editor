@@ -1,10 +1,42 @@
 use crate::core::document::Document;
-use crate::tui::app::{App, AppFocus};
+use crate::tui::app::{App, AppFocus, AppMode};
 use crossterm::event::{self, MouseEvent, MouseEventKind};
 
 pub fn handle_mouse(app: &mut App, mouse_event: MouseEvent) {
     match mouse_event.kind {
         MouseEventKind::Down(event::MouseButton::Left) => {
+            if !matches!(app.mode, AppMode::Editor) {
+                if let Some(popup_area) = app.popup_area {
+                    if mouse_event.column >= popup_area.x
+                        && mouse_event.column < popup_area.x + popup_area.width
+                        && mouse_event.row >= popup_area.y
+                        && mouse_event.row < popup_area.y + popup_area.height
+                    {
+                        if mouse_event.row >= popup_area.y + 1
+                            && mouse_event.row < popup_area.y + popup_area.height - 1
+                        {
+                            let clicked_index = (mouse_event.row - popup_area.y - 1) as usize;
+                            
+                            if let AppMode::Menu = app.mode {
+                                if clicked_index < app.menu_items.len() {
+                                    app.menu_selection = clicked_index;
+                                    app.execute_menu_action();
+                                }
+                            } else if let AppMode::Settings(_) = app.mode {
+                                if clicked_index < 4 {
+                                    app.mode = AppMode::Settings(clicked_index);
+                                    app.toggle_setting();
+                                }
+                            }
+                        }
+                    } else {
+                        app.mode = AppMode::Editor;
+                    }
+                }
+
+                return;
+            }
+
             if mouse_event.column >= app.explorer_area.x
                 && mouse_event.column < app.explorer_area.x + app.explorer_area.width
                 && mouse_event.row >= app.explorer_area.y
@@ -61,7 +93,6 @@ pub fn handle_mouse(app: &mut App, mouse_event: MouseEvent) {
                 }
             }
         }
-
         MouseEventKind::Drag(event::MouseButton::Left) => {
             if let AppFocus::Editor = app.focus {
                 if mouse_event.column >= app.editor_area.x + 1
