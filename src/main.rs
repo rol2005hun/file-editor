@@ -2,18 +2,21 @@ mod app;
 mod document;
 mod error;
 
-use app::App;
+use app::{App, AppMode};
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, MouseEventKind},
+    event::{
+        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind, MouseEventKind,
+    },
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use document::Document;
 use ratatui::{
     backend::{Backend, CrosstermBackend},
-    layout::{Constraint, Direction, Layout},
-    text::Text,
-    widgets::{Block, Borders, Paragraph},
+    layout::{Constraint, Direction, Layout, Rect},
+    style::{Color, Style},
+    text::{Line, Text},
+    widgets::{Block, Borders, Clear, List, ListItem, Paragraph},
     Terminal,
 };
 use std::{error::Error, io};
@@ -45,25 +48,55 @@ fn main() -> std::result::Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+    let popup_layout: std::rc::Rc<[Rect]> = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(
+            [
+                Constraint::Percentage((100 - percent_y) / 2),
+                Constraint::Percentage(percent_y),
+                Constraint::Percentage((100 - percent_y) / 2),
+            ]
+            .as_ref(),
+        )
+        .split(r);
+
+    Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(
+            [
+                Constraint::Percentage((100 - percent_x) / 2),
+                Constraint::Percentage(percent_x),
+                Constraint::Percentage((100 - percent_x) / 2),
+            ]
+            .as_ref(),
+        )
+        .split(popup_layout[1])[1]
+}
+
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<()>
 where
     std::io::Error: From<B::Error>,
 {
     loop {
+        if app.should_quit {
+            return Ok(());
+        }
+
         terminal.draw(|f: &mut ratatui::Frame| {
-            let vertical_chunks: std::rc::Rc<[ratatui::layout::Rect]> = Layout::default()
+            let vertical_chunks: std::rc::Rc<[Rect]> = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([Constraint::Min(0), Constraint::Length(3)].as_ref())
                 .split(f.area());
 
-            let horizontal_chunks: std::rc::Rc<[ratatui::layout::Rect]> = Layout::default()
+            let horizontal_chunks: std::rc::Rc<[Rect]> = Layout::default()
                 .direction(Direction::Horizontal)
                 .constraints([Constraint::Percentage(20), Constraint::Percentage(80)].as_ref())
                 .split(vertical_chunks[0]);
 
             app.editor_area = horizontal_chunks[1];
 
-            let sidebar: Paragraph = Paragraph::new("src/\n  main.rs\n  app.rs\n  document.rs\n  error.rs")
+            let sidebar: Paragraph = Paragraph::new("Fajlkezelo")
                 .block(Block::default().title("Explorer").borders(Borders::ALL));
             f.render_widget(sidebar, horizontal_chunks[0]);
 
@@ -73,8 +106,20 @@ where
                 .block(Block::default().title("Editor").borders(Borders::ALL));
             f.render_widget(editor, app.editor_area);
 
+            let status_mode: &str = match app.mode {
+                AppMode::Editor => "SZERKESZTO",
+                AppMode::Menu => "MENU",
+            };
+
+            let path_display: String = app
+                .document
+                .path
+                .clone()
+                .unwrap_or_else(|| "Nevtelen".to_string());
             let status_text: String = format!(
-                "NORMAL | src/main.rs | Ln {}, Col {}",
+                "{} | {} | Ln {}, Col {}",
+                status_mode,
+                path_display,
                 app.cursor_y + 1,
                 app.cursor_x + 1
             );
@@ -82,24 +127,60 @@ where
                 .block(Block::default().borders(Borders::ALL));
             f.render_widget(status_bar, vertical_chunks[1]);
 
-            f.set_cursor(
-                app.editor_area.x + 1 + app.cursor_x,
-                app.editor_area.y + 1 + app.cursor_y,
-            );
+            if let AppMode::Menu = app.mode {
+                let area: Rect = centered_rect(40, 40, f.area());
+                f.render_widget(Clear, area);
+
+                let items: Vec<ListItem> = app
+                    .menu_items
+                    .iter()
+                    .enumerate()
+                    .map(|(i, m)| {
+                        if i == app.menu_selection {
+                            ListItem::new(Line::from(format!("> {}", m)))
+                                .style(Style::default().fg(Color::Yellow))
+                        } else {
+                            ListItem::new(Line::from(format!("  {}", m)))
+                        }
+                    })
+                    .collect();
+
+                let list: List = List::new(items)
+                    .block(Block::default().borders(Borders::ALL).title("Fomenuk"));
+                f.render_widget(list, area);
+            } else {
+                f.set_cursor_position((
+                    app.editor_area.x + 1 + app.cursor_x,
+                    app.editor_area.y + 1 + app.cursor_y,
+                ));
+            }
         })?;
 
         if event::poll(std::time::Duration::from_millis(100))? {
             match event::read()? {
-                Event::Key(key) => match key.code {
-                    KeyCode::Esc => return Ok(()),
-                    KeyCode::Char(c) => app.insert_char(c),
-                    KeyCode::Backspace => app.delete_char(),
-                    KeyCode::Left => app.move_cursor(-1, 0),
-                    KeyCode::Right => app.move_cursor(1, 0),
-                    KeyCode::Up => app.move_cursor(0, -1),
-                    KeyCode::Down => app.move_cursor(0, 1),
-                    _ => {}
-                },
+                Event::Key(key) => {
+                    if key.kind == KeyEventKind::Press {
+                        match app.mode {
+                            AppMode::Editor => match key.code {
+                                KeyCode::Esc => app.toggle_menu(),
+                                KeyCode::Char(c) => app.insert_char(c),
+                                KeyCode::Backspace => app.delete_char(),
+                                KeyCode::Left => app.move_cursor(-1, 0),
+                                KeyCode::Right => app.move_cursor(1, 0),
+                                KeyCode::Up => app.move_cursor(0, -1),
+                                KeyCode::Down => app.move_cursor(0, 1),
+                                _ => {}
+                            },
+                            AppMode::Menu => match key.code {
+                                KeyCode::Esc => app.toggle_menu(),
+                                KeyCode::Up => app.menu_up(),
+                                KeyCode::Down => app.menu_down(),
+                                KeyCode::Enter => app.execute_menu_action(),
+                                _ => {}
+                            },
+                        }
+                    }
+                }
                 Event::Mouse(mouse_event) => {
                     if mouse_event.kind == MouseEventKind::Down(event::MouseButton::Left) {
                         app.handle_click(mouse_event.column, mouse_event.row);

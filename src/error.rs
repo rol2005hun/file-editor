@@ -5,8 +5,6 @@ use thiserror::Error;
 pub enum EditorError {
     #[error("IO Error: {0}")]
     Io(#[from] io::Error),
-    #[error("Invalid file format")]
-    InvalidFormat,
 }
 
 pub type Result<T> = std::result::Result<T, EditorError>;
