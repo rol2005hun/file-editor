@@ -1,11 +1,12 @@
+use std::io;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum MonitorError {
-    #[error("Failed to read system data: {0}")]
-    ReadError(String),
-    #[error("Invalid data format")]
+pub enum EditorError {
+    #[error("IO Error: {0}")]
+    Io(#[from] io::Error),
+    #[error("Invalid file format")]
     InvalidFormat,
 }
 
-pub type Result<T> = std::result::Result<T, MonitorError>;
+pub type Result<T> = std::result::Result<T, EditorError>;
