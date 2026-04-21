@@ -1,9 +1,11 @@
 use crate::tui::app::App;
 
 impl App {
-    pub fn handle_click(&mut self, x: u16, y: u16) {
-        self.cursor_x = x;
-        self.cursor_y = y;
+    pub fn handle_click(&mut self, click_x: u16, click_y: u16) {
+        let offset_x: u16 = if self.config.show_line_numbers { 5 } else { 0 };
+        
+        self.cursor_x = click_x.saturating_sub(offset_x);
+        self.cursor_y = click_y;
 
         if (self.cursor_y as usize) >= self.document.rows.len() {
             self.cursor_y = self.document.rows.len().saturating_sub(1) as u16;
@@ -35,16 +37,20 @@ impl App {
     }
 
     pub fn adjust_scroll(&mut self) {
+        let offset_x: u16 = if self.config.show_line_numbers { 5 } else { 0 };
+
         if self.cursor_y < self.scroll_y {
             self.scroll_y = self.cursor_y;
         } else if self.cursor_y >= self.scroll_y + self.editor_area.height.saturating_sub(2) {
             self.scroll_y = self.cursor_y - self.editor_area.height.saturating_sub(3);
         }
 
+        let visible_width: u16 = self.editor_area.width.saturating_sub(2 + offset_x);
+
         if self.cursor_x < self.scroll_x {
             self.scroll_x = self.cursor_x;
-        } else if self.cursor_x >= self.scroll_x + self.editor_area.width.saturating_sub(2) {
-            self.scroll_x = self.cursor_x - self.editor_area.width.saturating_sub(3);
+        } else if self.cursor_x >= self.scroll_x + visible_width {
+            self.scroll_x = self.cursor_x.saturating_sub(visible_width).saturating_add(1);
         }
     }
 }

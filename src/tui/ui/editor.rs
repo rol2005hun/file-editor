@@ -38,7 +38,7 @@ pub fn render(f: &mut Frame, app: &App, area: Rect) {
             if is_y_visible && is_x_visible {
                 let mut offset_x: u16 = 0;
                 if app.config.show_line_numbers {
-                    offset_x = 6;
+                    offset_x = 5;
                 }
                 let display_x: u16 = app.editor_area.x + 1 + app.cursor_x - app.scroll_x + offset_x;
                 let display_y: u16 = app.editor_area.y + 1 + app.cursor_y - app.scroll_y;
