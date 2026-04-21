@@ -16,8 +16,9 @@ pub fn render(f: &mut Frame, app: &App) {
 
             let s1: &str = if app.config.show_line_numbers { "[X] Show Line Numbers" } else { "[ ] Show Line Numbers" };
             let s2: &str = if app.config.show_help_bar { "[X] Show Help Bar" } else { "[ ] Show Help Bar" };
+            let s3: &str = if app.config.highlight_active_line { "[X] Highlight Active Line" } else { "[ ] Highlight Active Line" };
             
-            let options: Vec<String> = vec![s1.to_string(), s2.to_string()];
+            let options: Vec<String> = vec![s1.to_string(), s2.to_string(), s3.to_string()];
             let mut items: Vec<ListItem> = Vec::new();
 
             for (i, opt) in options.iter().enumerate() {
@@ -51,21 +52,21 @@ pub fn render(f: &mut Frame, app: &App) {
                 .collect();
 
             let list: List = List::new(items)
-                .block(Block::default().borders(Borders::ALL).title("Main Menu"));
+                .block(Block::default().borders(Borders::ALL).title(" Main Menu "));
             f.render_widget(list, area);
         }
         AppMode::PromptFile(ref input) => {
             let area: Rect = centered_rect(40, 20, f.area());
             f.render_widget(Clear, area);
             let block: Paragraph = Paragraph::new(input.as_str())
-                .block(Block::default().borders(Borders::ALL).title("New File Name"));
+                .block(Block::default().borders(Borders::ALL).title(" New File Name "));
             f.render_widget(block, area);
         }
         AppMode::PromptDir(ref input) => {
             let area: Rect = centered_rect(40, 20, f.area());
             f.render_widget(Clear, area);
             let block: Paragraph = Paragraph::new(input.as_str())
-                .block(Block::default().borders(Borders::ALL).title("New Directory Name"));
+                .block(Block::default().borders(Borders::ALL).title(" New Directory Name "));
             f.render_widget(block, area);
         }
         AppMode::Editor => {}

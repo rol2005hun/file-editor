@@ -52,14 +52,14 @@ impl App {
             if selection > 0 {
                 self.mode = AppMode::Settings(selection - 1);
             } else {
-                self.mode = AppMode::Settings(1);
+                self.mode = AppMode::Settings(2);
             }
         }
     }
 
     pub fn settings_down(&mut self) {
         if let AppMode::Settings(selection) = self.mode {
-            if selection < 1 {
+            if selection < 2 {
                 self.mode = AppMode::Settings(selection + 1);
             } else {
                 self.mode = AppMode::Settings(0);
@@ -72,6 +72,7 @@ impl App {
             match selection {
                 0 => self.config.show_line_numbers = !self.config.show_line_numbers,
                 1 => self.config.show_help_bar = !self.config.show_help_bar,
+                2 => self.config.highlight_active_line = !self.config.highlight_active_line,
                 _ => {}
             }
         }

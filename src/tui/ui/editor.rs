@@ -1,7 +1,8 @@
 use crate::tui::app::{App, AppFocus, AppMode};
 use ratatui::{
     layout::Rect,
-    text::Text,
+    style::{Color, Style},
+    text::{Line, Text},
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
@@ -12,17 +13,26 @@ pub fn render(f: &mut Frame, app: &App, area: Rect) {
         _ => " Editor ",
     };
 
-    let mut display_rows: Vec<String> = Vec::new();
+    let mut lines: Vec<Line> = Vec::new();
     for (i, row) in app.document.rows.iter().enumerate() {
-        if app.config.show_line_numbers {
-            display_rows.push(format!("{:3}  {}", i + 1, row));
+        let row_text: String = if app.config.show_line_numbers {
+            format!("{:3}  {}", i + 1, row)
         } else {
-            display_rows.push(row.clone());
+            row.clone()
+        };
+
+        let mut style: Style = Style::default();
+        
+        if app.config.highlight_active_line && matches!(app.focus, AppFocus::Editor) {
+            if i == app.cursor_y as usize {
+                style = style.bg(Color::Rgb(40, 40, 40));
+            }
         }
+
+        lines.push(Line::from(row_text).style(style));
     }
 
-    let content: String = display_rows.join("\n");
-    let text: Text = Text::raw(content);
+    let text: Text = Text::from(lines);
     let editor: Paragraph = Paragraph::new(text)
         .block(Block::default().title(editor_title).borders(Borders::ALL))
         .scroll((app.scroll_y, app.scroll_x));
