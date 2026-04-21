@@ -2,6 +2,7 @@ pub mod cursor;
 pub mod editor;
 pub mod menu;
 
+use crate::core::config::AppConfig;
 use crate::core::document::Document;
 use crate::core::explorer::Explorer;
 use ratatui::layout::Rect;
@@ -9,6 +10,7 @@ use ratatui::layout::Rect;
 pub enum AppMode {
     Editor,
     Menu,
+    Settings(usize),
     PromptFile(String),
     PromptDir(String),
 }
@@ -21,6 +23,7 @@ pub enum AppFocus {
 pub struct App {
     pub document: Document,
     pub explorer: Explorer,
+    pub config: AppConfig,
     pub cursor_x: u16,
     pub cursor_y: u16,
     pub scroll_x: u16,
@@ -45,6 +48,7 @@ impl App {
         Self {
             document: Document::new(),
             explorer,
+            config: AppConfig::new(),
             cursor_x: 0,
             cursor_y: 0,
             scroll_x: 0,
@@ -57,7 +61,7 @@ impl App {
                 "New File".to_string(),
                 "New Directory".to_string(),
                 "Save".to_string(),
-                "Settings (Soon)".to_string(),
+                "Settings".to_string(),
                 "Exit".to_string(),
             ],
             menu_selection: 0,

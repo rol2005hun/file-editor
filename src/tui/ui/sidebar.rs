@@ -27,11 +27,14 @@ pub fn render(f: &mut Frame, app: &App, area: Rect) {
         };
 
         let mut style: Style = Style::default();
-        if let AppFocus::Explorer = app.focus {
-            if i == app.explorer.selected {
-                style = style.bg(Color::DarkGray).fg(Color::White);
-            }
+        
+        if i == app.explorer.selected {
+            style = match app.focus {
+                AppFocus::Explorer => Style::default().bg(Color::DarkGray).fg(Color::White),
+                AppFocus::Editor => Style::default().bg(Color::DarkGray).fg(Color::White),
+            };
         }
+        
         list_items.push(ListItem::new(Line::from(display_name)).style(style));
     }
 

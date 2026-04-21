@@ -10,6 +10,28 @@ use ratatui::{
 
 pub fn render(f: &mut Frame, app: &App) {
     match app.mode {
+        AppMode::Settings(selection) => {
+            let area: Rect = centered_rect(40, 30, f.area());
+            f.render_widget(Clear, area);
+
+            let s1: &str = if app.config.show_line_numbers { "[X] Show Line Numbers" } else { "[ ] Show Line Numbers" };
+            let s2: &str = if app.config.show_help_bar { "[X] Show Help Bar" } else { "[ ] Show Help Bar" };
+            
+            let options: Vec<String> = vec![s1.to_string(), s2.to_string()];
+            let mut items: Vec<ListItem> = Vec::new();
+
+            for (i, opt) in options.iter().enumerate() {
+                if i == selection {
+                    items.push(ListItem::new(Line::from(format!("> {}", opt))).style(Style::default().fg(Color::Yellow)));
+                } else {
+                    items.push(ListItem::new(Line::from(format!("  {}", opt))));
+                }
+            }
+
+            let list: List = List::new(items)
+                .block(Block::default().borders(Borders::ALL).title(" Settings (Esc to back) "));
+            f.render_widget(list, area);
+        }
         AppMode::Menu => {
             let area: Rect = centered_rect(40, 40, f.area());
             f.render_widget(Clear, area);

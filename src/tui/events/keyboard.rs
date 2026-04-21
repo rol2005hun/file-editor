@@ -6,6 +6,13 @@ pub fn handle_key(app: &mut App, code: KeyCode) {
     let mut mode_transition: Option<AppMode> = None;
 
     match app.mode {
+        AppMode::Settings(_) => match code {
+            KeyCode::Esc => mode_transition = Some(AppMode::Menu),
+            KeyCode::Up => app.settings_up(),
+            KeyCode::Down => app.settings_down(),
+            KeyCode::Enter => app.toggle_setting(),
+            _ => {}
+        },
         AppMode::PromptFile(ref mut input) => match code {
             KeyCode::Esc => mode_transition = Some(AppMode::Editor),
             KeyCode::Enter => {

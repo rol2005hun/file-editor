@@ -11,21 +11,23 @@ use ratatui::{
 };
 
 pub fn render(f: &mut Frame, app: &mut App) {
+    let mut vertical_constraints: Vec<Constraint> = vec![
+        Constraint::Min(0),
+        Constraint::Length(3),
+    ];
+
+    if app.config.show_help_bar {
+        vertical_constraints.push(Constraint::Length(3));
+    }
+
     let vertical_chunks: std::rc::Rc<[Rect]> = Layout::default()
         .direction(Direction::Vertical)
-        .constraints(
-            [
-                Constraint::Min(0),
-                Constraint::Length(3),
-                Constraint::Length(3),
-            ]
-            .as_ref(),
-        )
+        .constraints(vertical_constraints)
         .split(f.area());
 
     let horizontal_chunks: std::rc::Rc<[Rect]> = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(20), Constraint::Percentage(80)].as_ref())
+        .constraints([Constraint::Percentage(20), Constraint::Percentage(80)])
         .split(vertical_chunks[0]);
 
     app.explorer_area = horizontal_chunks[0];
@@ -34,6 +36,10 @@ pub fn render(f: &mut Frame, app: &mut App) {
     sidebar::render(f, app, app.explorer_area);
     editor::render(f, app, app.editor_area);
     footer::render_status(f, app, vertical_chunks[1]);
-    footer::render_help(f, app, vertical_chunks[2]);
+    
+    if app.config.show_help_bar {
+        footer::render_help(f, app, vertical_chunks[2]);
+    }
+    
     popup::render(f, app);
 }

@@ -12,7 +12,16 @@ pub fn render(f: &mut Frame, app: &App, area: Rect) {
         _ => " Editor ",
     };
 
-    let content: String = app.document.rows.join("\n");
+    let mut display_rows: Vec<String> = Vec::new();
+    for (i, row) in app.document.rows.iter().enumerate() {
+        if app.config.show_line_numbers {
+            display_rows.push(format!("{:3}  {}", i + 1, row));
+        } else {
+            display_rows.push(row.clone());
+        }
+    }
+
+    let content: String = display_rows.join("\n");
     let text: Text = Text::raw(content);
     let editor: Paragraph = Paragraph::new(text)
         .block(Block::default().title(editor_title).borders(Borders::ALL))
@@ -27,7 +36,11 @@ pub fn render(f: &mut Frame, app: &App, area: Rect) {
                 && app.cursor_x < app.scroll_x + app.editor_area.width.saturating_sub(2);
 
             if is_y_visible && is_x_visible {
-                let display_x: u16 = app.editor_area.x + 1 + app.cursor_x - app.scroll_x;
+                let mut offset_x: u16 = 0;
+                if app.config.show_line_numbers {
+                    offset_x = 6;
+                }
+                let display_x: u16 = app.editor_area.x + 1 + app.cursor_x - app.scroll_x + offset_x;
                 let display_y: u16 = app.editor_area.y + 1 + app.cursor_y - app.scroll_y;
                 f.set_cursor_position((display_x, display_y));
             }

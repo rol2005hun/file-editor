@@ -9,6 +9,7 @@ pub fn render_status(f: &mut Frame, app: &App, area: Rect) {
     let status_mode: &str = match app.mode {
         AppMode::Editor => "EDITOR",
         AppMode::Menu => "MENU",
+        AppMode::Settings(_) => "SETTINGS",
         AppMode::PromptFile(_) | AppMode::PromptDir(_) => "INPUT",
     };
 
@@ -36,6 +37,7 @@ pub fn render_help(f: &mut Frame, app: &App, area: Rect) {
             AppFocus::Editor => "Ctrl+S: Save | Ctrl+C: Copy Line | Ctrl+V: Paste | Tab: Focus Explorer".to_string(),
         },
         AppMode::Menu => "Enter: Select | Esc: Back | Up/Down: Navigate".to_string(),
+        AppMode::Settings(_) => "Enter: Toggle | Esc: Back | Up/Down: Navigate".to_string(),
         AppMode::PromptFile(_) | AppMode::PromptDir(_) => "Enter: Submit | Esc: Cancel".to_string(),
     };
 

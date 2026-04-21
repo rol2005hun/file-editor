@@ -38,12 +38,42 @@ impl App {
                 self.mode = AppMode::Editor;
             }
             3 => {
-                self.mode = AppMode::Editor;
+                self.mode = AppMode::Settings(0);
             }
             4 => {
                 self.should_quit = true;
             }
             _ => {}
+        }
+    }
+
+    pub fn settings_up(&mut self) {
+        if let AppMode::Settings(selection) = self.mode {
+            if selection > 0 {
+                self.mode = AppMode::Settings(selection - 1);
+            } else {
+                self.mode = AppMode::Settings(1);
+            }
+        }
+    }
+
+    pub fn settings_down(&mut self) {
+        if let AppMode::Settings(selection) = self.mode {
+            if selection < 1 {
+                self.mode = AppMode::Settings(selection + 1);
+            } else {
+                self.mode = AppMode::Settings(0);
+            }
+        }
+    }
+
+    pub fn toggle_setting(&mut self) {
+        if let AppMode::Settings(selection) = self.mode {
+            match selection {
+                0 => self.config.show_line_numbers = !self.config.show_line_numbers,
+                1 => self.config.show_help_bar = !self.config.show_help_bar,
+                _ => {}
+            }
         }
     }
 }
