@@ -11,11 +11,11 @@ use ratatui::{
 };
 
 pub fn render(f: &mut Frame, app: &mut App) {
-    let mut vertical_constraints: Vec<Constraint> = vec![
-        Constraint::Min(0),
-        Constraint::Length(3),
-    ];
+    let mut vertical_constraints: Vec<Constraint> = vec![Constraint::Min(0)];
 
+    if app.config.show_status_bar {
+        vertical_constraints.push(Constraint::Length(3));
+    }
     if app.config.show_help_bar {
         vertical_constraints.push(Constraint::Length(3));
     }
@@ -35,10 +35,16 @@ pub fn render(f: &mut Frame, app: &mut App) {
 
     sidebar::render(f, app, app.explorer_area);
     editor::render(f, app, app.editor_area);
-    footer::render_status(f, app, vertical_chunks[1]);
+
+    let mut current_bottom_chunk: usize = 1;
+
+    if app.config.show_status_bar {
+        footer::render_status(f, app, vertical_chunks[current_bottom_chunk]);
+        current_bottom_chunk += 1;
+    }
     
     if app.config.show_help_bar {
-        footer::render_help(f, app, vertical_chunks[2]);
+        footer::render_help(f, app, vertical_chunks[current_bottom_chunk]);
     }
     
     popup::render(f, app);
