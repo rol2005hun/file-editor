@@ -1,6 +1,55 @@
 use crate::tui::app::App;
 
 impl App {
+    pub fn get_selection_bounds(&self) -> Option<((usize, usize), (usize, usize))> {
+        if let Some((start_x, start_y)) = self.selection_start {
+            let start: (usize, usize) = (start_x as usize, start_y as usize);
+            let end: (usize, usize) = (self.cursor_x as usize, self.cursor_y as usize);
+            
+            if start.1 < end.1 || (start.1 == end.1 && start.0 <= end.0) {
+                Some((start, end))
+            } else {
+                Some((end, start))
+            }
+        } else {
+            None
+        }
+    }
+
+    pub fn get_selected_text(&self) -> Option<String> {
+        let (start, end) = self.get_selection_bounds()?;
+        
+        if start.1 == end.1 {
+            let row: &String = self.document.rows.get(start.1)?;
+            let chars: Vec<char> = row.chars().collect();
+            let end_idx: usize = std::cmp::min(end.0, chars.len());
+            let start_idx: usize = std::cmp::min(start.0, chars.len());
+            let text: String = chars[start_idx..end_idx].iter().collect();
+            Some(text)
+        } else {
+            let mut text: String = String::new();
+            for y in start.1..=end.1 {
+                if let Some(row) = self.document.rows.get(y) {
+                    let chars: Vec<char> = row.chars().collect();
+                    if y == start.1 {
+                        let start_idx: usize = std::cmp::min(start.0, chars.len());
+                        let part: String = chars[start_idx..].iter().collect();
+                        text.push_str(&part);
+                        text.push('\n');
+                    } else if y == end.1 {
+                        let end_idx: usize = std::cmp::min(end.0, chars.len());
+                        let part: String = chars[..end_idx].iter().collect();
+                        text.push_str(&part);
+                    } else {
+                        text.push_str(row);
+                        text.push('\n');
+                    }
+                }
+            }
+            Some(text)
+        }
+    }
+
     pub fn paste(&mut self, text: &str) {
         for c in text.chars() {
             if c == '\n' {

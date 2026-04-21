@@ -15,10 +15,11 @@ pub fn render(f: &mut Frame, app: &App) {
             f.render_widget(Clear, area);
 
             let s1: &str = if app.config.show_line_numbers { "[X] Show Line Numbers" } else { "[ ] Show Line Numbers" };
-            let s2: &str = if app.config.show_help_bar { "[X] Show Help Bar" } else { "[ ] Show Help Bar" };
-            let s3: &str = if app.config.highlight_active_line { "[X] Highlight Active Line" } else { "[ ] Highlight Active Line" };
-            
-            let options: Vec<String> = vec![s1.to_string(), s2.to_string(), s3.to_string()];
+            let s2: &str = if app.config.show_status_bar { "[X] Show Status Bar" } else { "[ ] Show Status Bar" };
+            let s3: &str = if app.config.show_help_bar { "[X] Show Help Bar" } else { "[ ] Show Help Bar" };
+            let s4: &str = if app.config.highlight_active_line { "[X] Highlight Active Line" } else { "[ ] Highlight Active Line" };
+
+            let options: Vec<String> = vec![s1.to_string(), s2.to_string(), s3.to_string(), s4.to_string()];
             let mut items: Vec<ListItem> = Vec::new();
 
             for (i, opt) in options.iter().enumerate() {

@@ -19,6 +19,8 @@ impl App {
     }
 
     pub fn move_cursor(&mut self, dx: i16, dy: i16) {
+        self.selection_start = None; 
+
         let new_x: i16 = self.cursor_x as i16 + dx;
         let new_y: i16 = self.cursor_y as i16 + dy;
 

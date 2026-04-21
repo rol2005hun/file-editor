@@ -11,7 +11,9 @@ pub fn handle_ctrl_shortcut(app: &mut App, code: KeyCode) {
                 }
                 KeyCode::Char('c') => {
                     if let Ok(mut clipboard) = Clipboard::new() {
-                        if let Some(line) = app.document.rows.get(app.cursor_y as usize) {
+                        if let Some(selected_text) = app.get_selected_text() {
+                            let _ = clipboard.set_text(selected_text);
+                        } else if let Some(line) = app.document.rows.get(app.cursor_y as usize) {
                             let _ = clipboard.set_text(line.clone());
                         }
                     }

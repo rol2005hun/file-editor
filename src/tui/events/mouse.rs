@@ -20,7 +20,6 @@ pub fn handle_mouse(app: &mut App, mouse_event: MouseEvent) {
 
                     if clicked_index < app.explorer.items.len() {
                         app.explorer.selected = clicked_index;
-
                         let path: std::path::PathBuf = app.explorer.items[clicked_index].clone();
 
                         if path.is_dir() {
@@ -42,6 +41,8 @@ pub fn handle_mouse(app: &mut App, mouse_event: MouseEvent) {
                 && mouse_event.row < app.editor_area.y + app.editor_area.height
             {
                 app.focus = AppFocus::Editor;
+                
+                app.selection_start = None;
 
                 if mouse_event.column >= app.editor_area.x + 1
                     && mouse_event.column < app.editor_area.x + app.editor_area.width - 1
@@ -57,6 +58,31 @@ pub fn handle_mouse(app: &mut App, mouse_event: MouseEvent) {
                         .saturating_sub(app.editor_area.y + 1)
                         + app.scroll_y;
                     app.handle_click(click_x, click_y);
+                }
+            }
+        }
+
+        MouseEventKind::Drag(event::MouseButton::Left) => {
+            if let AppFocus::Editor = app.focus {
+                if mouse_event.column >= app.editor_area.x + 1
+                    && mouse_event.column < app.editor_area.x + app.editor_area.width - 1
+                    && mouse_event.row >= app.editor_area.y + 1
+                    && mouse_event.row < app.editor_area.y + app.editor_area.height - 1
+                {
+                    if app.selection_start.is_none() {
+                        app.selection_start = Some((app.cursor_x, app.cursor_y));
+                    }
+
+                    let drag_x: u16 = mouse_event
+                        .column
+                        .saturating_sub(app.editor_area.x + 1)
+                        + app.scroll_x;
+                    let drag_y: u16 = mouse_event
+                        .row
+                        .saturating_sub(app.editor_area.y + 1)
+                        + app.scroll_y;
+                        
+                    app.handle_click(drag_x, drag_y);
                 }
             }
         }
