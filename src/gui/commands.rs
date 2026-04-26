@@ -3,7 +3,7 @@ use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use tauri::State;
+use tauri::{AppHandle, State};
 
 #[derive(Serialize)]
 pub struct FileNode {
@@ -51,4 +51,21 @@ pub fn read_file(path: String) -> Result<String, String> {
 #[tauri::command]
 pub fn save_file(path: String, content: String) -> Result<(), String> {
     fs::write(path, content).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn create_file(state: State<'_, Arc<Mutex<App>>>, name: String) -> Result<(), String> {
+    let mut app: std::sync::MutexGuard<'_, App> = state.lock().unwrap();
+    app.explorer.create_file(&name).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn create_dir(state: State<'_, Arc<Mutex<App>>>, name: String) -> Result<(), String> {
+    let mut app: std::sync::MutexGuard<'_, App> = state.lock().unwrap();
+    app.explorer.create_dir(&name).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn exit_app(app_handle: AppHandle) {
+    app_handle.exit(0);
 }

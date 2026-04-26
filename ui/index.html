@@ -8,8 +8,23 @@
 </head>
 <body>
     <div id="topbar">
-        <div class="menu-item">File</div>
-        <div class="menu-item">Edit</div>
+        <div class="menu-item" data-menu="file-menu">
+            File
+            <div class="dropdown" id="file-menu">
+                <div class="dropdown-item" id="action-new-file">New File</div>
+                <div class="dropdown-item" id="action-new-dir">New Directory</div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" id="action-save">Save</div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" id="action-exit">Exit</div>
+            </div>
+        </div>
+        <div class="menu-item" data-menu="edit-menu">
+            Edit
+            <div class="dropdown" id="edit-menu">
+                <div class="dropdown-item">Undo</div>
+            </div>
+        </div>
         <div class="menu-item">Selection</div>
         <div class="menu-item">View</div>
         <div class="menu-item">Help</div>
@@ -26,5 +41,6 @@
     </div>
     <script src="js/state.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/menu.js"></script>
 </body>
 </html>

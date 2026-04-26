@@ -51,3 +51,25 @@ body {
     margin: 0;
     overflow-y: auto;
 }
+
+.menu-item {
+    position: relative;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 30px;
+    left: 0;
+    z-index: 1000;
+    min-width: 200px;
+}
+
+.dropdown.show {
+    display: block;
+}
+
+.dropdown-divider {
+    height: 1px;
+    margin: 4px 0;
+}

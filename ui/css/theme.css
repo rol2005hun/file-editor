@@ -78,3 +78,25 @@ body {
     font-family: "Consolas", monospace;
     font-size: 15px;
 }
+
+.dropdown {
+    background-color: #252526;
+    border: 1px solid #454545;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.dropdown-item {
+    padding: 6px 15px;
+    font-size: 13px;
+    color: #cccccc;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #04395e;
+    color: #ffffff;
+}
+
+.dropdown-divider {
+    background-color: #454545;
+}

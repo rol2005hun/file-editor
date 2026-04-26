@@ -8,14 +8,60 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::{Backend, CrosstermBackend}, Terminal};
-use std::{env, error::Error, io, sync::{Arc, Mutex}};
-use tui::{app::App, events::handle_events, ui::render};
+use std::{env, error::Error, io::{self, Write}, path::PathBuf, sync::{Arc, Mutex}};
+use tui::{app::{App, AppFocus}, events::handle_events, ui::render};
 
 fn main() -> std::result::Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
-    let app_state: Arc<Mutex<App>> = Arc::new(Mutex::new(App::new()));
+    
+    let mut is_gui: bool = false;
+    let mut target_path: Option<String> = None;
+    let mut ask_mode: bool = true;
 
-    if args.contains(&String::from("--gui")) {
+    for arg in args.iter().skip(1) {
+        if arg == "--gui" {
+            is_gui = true;
+            ask_mode = false;
+        } else if arg == "--tui" {
+            is_gui = false;
+            ask_mode = false;
+        } else if !arg.starts_with("--") {
+            target_path = Some(arg.clone());
+        }
+    }
+
+    if ask_mode {
+        print!("Melyik verziot szeretned inditani? [1] TUI, [2] GUI: ");
+        io::stdout().flush()?;
+        let mut input: String = String::new();
+        io::stdin().read_line(&mut input)?;
+        if input.trim() == "2" {
+            is_gui = true;
+        }
+    }
+
+    let mut initial_app: App = App::new();
+
+    if let Some(path_str) = target_path {
+        let p: PathBuf = PathBuf::from(&path_str);
+        if p.is_dir() {
+            initial_app.explorer.current_path = p;
+            let _ = initial_app.explorer.refresh();
+        } else if p.is_file() {
+            if let Some(parent) = p.parent() {
+                initial_app.explorer.current_path = parent.to_path_buf();
+                let _ = initial_app.explorer.refresh();
+            }
+            if let Ok(doc) = crate::core::document::Document::open(&p) {
+                initial_app.document = doc;
+                initial_app.focus = AppFocus::Editor;
+            }
+        }
+    }
+
+    let app_state: Arc<Mutex<App>> = Arc::new(Mutex::new(initial_app));
+
+    if is_gui {
         gui::run_gui(app_state);
         return Ok(());
     }
