@@ -13,7 +13,7 @@ pub fn handle_events(
     editor_area: Rect, 
     popup_area: Option<Rect>
 ) -> io::Result<()> {
-    if event::poll(std::time::Duration::from_millis(100))? {
+    if event::poll(std::time::Duration::from_millis(16))? {
         match event::read()? {
             Event::Key(key) => {
                 if key.kind == KeyEventKind::Press {

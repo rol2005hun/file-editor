@@ -84,14 +84,13 @@ fn main() -> std::result::Result<(), Box<dyn Error>> {
 
     let res = run_app(&mut terminal, Arc::clone(&app_state));
 
+    let _ = terminal.show_cursor();
     let _ = disable_raw_mode();
     let _ = execute!(
-        terminal.backend_mut(),
+        io::stdout(),
         LeaveAlternateScreen,
         DisableMouseCapture
     );
-    let _ = terminal.show_cursor();
-    
     let _ = io::stdout().flush();
 
     if let Err(err) = res {
