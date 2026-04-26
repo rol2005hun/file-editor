@@ -31,7 +31,7 @@ fn main() -> std::result::Result<(), Box<dyn Error>> {
     }
 
     if ask_mode {
-        print!("Melyik verziot szeretned inditani? [1] TUI, [2] GUI: ");
+        print!("Which mode would you like to run? [1] TUI, [2] GUI: ");
         io::stdout().flush()?;
         let mut input: String = String::new();
         io::stdin().read_line(&mut input)?;
@@ -59,6 +59,7 @@ fn main() -> std::result::Result<(), Box<dyn Error>> {
         }
     }
 
+    // Arc and Mutex for shared state between TUI and GUI
     let app_state: Arc<Mutex<App>> = Arc::new(Mutex::new(initial_app));
 
     if is_gui {

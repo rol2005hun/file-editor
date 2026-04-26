@@ -1,12 +1,14 @@
 use crate::tui::app::App;
 
 impl App {
+    // while let
     pub fn prune_history(&mut self) {
         while let Some(_) = self.history.get(50) {
             self.history.remove(0);
         }
     }
 
+    // closures
     pub fn find_line(&self, pattern: &str) -> Vec<usize> {
         self.document.rows.iter()
             .enumerate()
