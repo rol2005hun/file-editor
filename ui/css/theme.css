@@ -71,14 +71,6 @@ body {
     color: #ff5555;
 }
 
-#editor {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-    border: none;
-    font-family: "Consolas", monospace;
-    font-size: 15px;
-}
-
 .dropdown {
     background-color: #252526;
     border: 1px solid #454545;
@@ -118,7 +110,6 @@ body {
     display: flex;
 }
 
-/* Modal Doboz */
 .modal-content {
     background-color: #252526;
     border: 1px solid #454545;
@@ -176,6 +167,7 @@ code {
 .CodeMirror {
     background-color: #1e1e1e !important;
     color: #d4d4d4 !important;
+    height: 100% !important;
 }
 
 .CodeMirror-gutters {
@@ -191,6 +183,12 @@ code {
     border-left: 2px solid #ffffff !important;
 }
 
-.CodeMirror-selected {
-    background-color: #264f78 !important;
-}
+.cm-s-vscode-dark span.cm-keyword { color: #569cd6 !important; }
+.cm-s-vscode-dark span.cm-string { color: #ce9178 !important; }
+.cm-s-vscode-dark span.cm-number { color: #b5cea8 !important; }
+.cm-s-vscode-dark span.cm-comment { color: #6a9955 !important; }
+.cm-s-vscode-dark span.cm-variable { color: #9cdcfe !important; }
+.cm-s-vscode-dark span.cm-def { color: #dcdcaa !important; }
+.cm-s-vscode-dark span.cm-atom { color: #569cd6 !important; }
+.cm-s-vscode-dark span.cm-property { color: #9cdcfe !important; }
+.cm-s-vscode-dark span.cm-operator { color: #d4d4d4 !important; }

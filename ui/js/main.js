@@ -15,16 +15,21 @@ const cm = CodeMirror(document.getElementById('real-editor'), {
 
 function getModeByPath(path) {
     const ext = path.split('.').pop().toLowerCase();
-    const modes = {
+    const map = {
         'rs': 'rust',
         'js': 'javascript',
         'ts': 'javascript',
         'css': 'css',
-        'toml': 'toml',
         'html': 'xml',
+        'toml': 'toml',
         'md': 'markdown'
     };
-    return modes[ext] || 'text/plain';
+    return map[ext] || 'text/plain';
+}
+
+function updateEditorMode(path) {
+    const newMode = getModeByPath(path);
+    cm.setOption('mode', newMode);
 }
 
 function renderTabs() {

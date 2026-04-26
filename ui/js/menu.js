@@ -1,114 +1,108 @@
-const fileMenuItems = document.querySelectorAll('.menu-item');
+const invoke = window.__TAURI__.invoke;
+const fileList = document.getElementById('file-list');
+const tabsContainer = document.getElementById('tabs-container');
 
-function closeAllMenus() {
-    document.querySelectorAll('.dropdown.show').forEach((dropdown) => {
-        dropdown.classList.remove('show');
-    });
+const cm = CodeMirror(document.getElementById('real-editor'), {
+    lineNumbers: true,
+    theme: 'vscode-dark',
+    mode: 'rust',
+    indentUnit: 4,
+    tabSize: 4,
+    lineWrapping: true
+});
+
+function getModeByPath(path) {
+    const ext = path.split('.').pop().toLowerCase();
+    const map = {
+        'rs': 'rust',
+        'js': 'javascript',
+        'ts': 'javascript',
+        'css': 'css',
+        'html': 'xml',
+        'toml': 'toml'
+    };
+    return map[ext] || 'text/plain';
 }
 
-fileMenuItems.forEach((item) => {
-    item.addEventListener('click', (e) => {
-        e.stopPropagation();
+function renderTabs() {
+    tabsContainer.innerHTML = '';
+    for (const file of appState.openFiles) {
+        const tab = document.createElement('div');
+        tab.className = file.path === appState.activeFilePath ? 'tab active' : 'tab';
         
-        const menuId = item.getAttribute('data-menu');
-        const targetDropdown = document.getElementById(menuId);
-        
-        const isAlreadyOpen = targetDropdown && targetDropdown.classList.contains('show');
-        
-        closeAllMenus();
+        const title = document.createElement('span');
+        title.innerText = file.name;
+        title.onclick = () => {
+            appState.activeFilePath = file.path;
+            cm.setValue(file.content);
+            cm.setOption('mode', getModeByPath(file.path));
+            renderTabs();
+        };
 
-        if (menuId && !isAlreadyOpen) {
-            targetDropdown.classList.add('show');
-        }
-    });
-});
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'tab-close';
+        closeBtn.innerText = '×';
+        closeBtn.onclick = (e) => {
+            e.stopPropagation();
+            removeTab(file.path);
+            const newActive = appState.openFiles.find((f) => f.path === appState.activeFilePath);
+            cm.setValue(newActive ? newActive.content : '');
+            if (newActive) cm.setOption('mode', getModeByPath(newActive.path));
+            renderTabs();
+        };
 
-document.addEventListener('click', () => {
-    closeAllMenus();
-});
-
-document.getElementById('action-new-file').addEventListener('click', async (e) => {
-    e.stopPropagation();
-    const fileName = prompt('Enter new file name:');
-    if (fileName) {
-        try {
-            await invoke('create_file', { name: fileName });
-            if (typeof loadExplorer === 'function') {
-                loadExplorer();
-            }
-            closeAllMenus();
-        } catch (error) {
-            alert(error);
-        }
-    } else {
-        closeAllMenus();
+        tab.appendChild(title);
+        tab.appendChild(closeBtn);
+        tabsContainer.appendChild(tab);
     }
-});
+}
 
-document.getElementById('action-new-dir').addEventListener('click', async (e) => {
-    e.stopPropagation();
-    const dirName = prompt('Enter new directory name:');
-    if (dirName) {
-        try {
-            await invoke('create_dir', { name: dirName });
-            if (typeof loadExplorer === 'function') {
-                loadExplorer();
-            }
-            closeAllMenus();
-        } catch (error) {
-            alert(error);
+async function loadExplorer() {
+    try {
+        const items = await invoke('get_explorer_items');
+        fileList.innerHTML = '';
+        for (const item of items) {
+            const li = document.createElement('li');
+            li.className = 'file-item';
+            li.innerText = (item.is_dir ? '📁 ' : '📄 ') + item.name;
+            
+            li.onclick = async () => {
+                if (item.is_dir) {
+                    await invoke('open_path', { path: item.path });
+                    loadExplorer();
+                } else {
+                    const content = await invoke('read_file', { path: item.path });
+                    addTab(item.name, item.path, content);
+                    cm.setValue(content);
+                    cm.setOption('mode', getModeByPath(item.path));
+                    renderTabs();
+                }
+            };
+            fileList.appendChild(li);
         }
-    } else {
-        closeAllMenus();
+    } catch (e) {
+        console.error(e);
     }
+}
+
+cm.on('change', () => {
+    updateActiveContent(cm.getValue());
 });
 
-document.getElementById('action-save').addEventListener('click', async (e) => {
-    e.stopPropagation();
+async function saveFile() {
     if (appState.activeFilePath) {
-        try {
-            await invoke('save_file', { 
-                path: appState.activeFilePath, 
-                content: document.getElementById('editor').value 
-            });
-            closeAllMenus();
-        } catch (error) {
-            alert(error);
-        }
-    } else {
-        closeAllMenus();
+        await invoke('save_file', { 
+            path: appState.activeFilePath, 
+            content: cm.getValue() 
+        });
+    }
+}
+
+window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        saveFile();
     }
 });
 
-document.getElementById('action-exit').addEventListener('click', async () => {
-    await invoke('exit_app');
-});
-
-const helpModal = document.getElementById('help-modal-overlay');
-
-document.getElementById('action-help').addEventListener('click', () => {
-    closeAllMenus();
-    helpModal.classList.add('show');
-});
-
-document.getElementById('close-help').addEventListener('click', () => {
-    helpModal.classList.remove('show');
-});
-
-document.getElementById('help-ok-btn').addEventListener('click', () => {
-    helpModal.classList.remove('show');
-});
-
-window.addEventListener('click', (e) => {
-    if (e.target === helpModal) {
-        helpModal.classList.remove('show');
-    }
-});
-
-document.getElementById('action-undo').addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (typeof cm !== 'undefined') {
-        cm.undo();
-        closeAllMenus();
-    }
-});
+window.addEventListener('DOMContentLoaded', loadExplorer);
