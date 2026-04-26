@@ -3,10 +3,11 @@
     "beforeBuildCommand": "",
     "beforeDevCommand": "",
     "devPath": "./ui",
-    "distDir": "./ui"
+    "distDir": "./ui",
+    "withGlobalTauri": true
   },
   "package": {
-    "productName": "rust_editor",
+    "productName": "rust_file_editor",
     "version": "0.1.0"
   },
   "tauri": {
@@ -15,7 +16,7 @@
     },
     "bundle": {
       "active": false,
-      "identifier": "com.rusteditor.dev",
+      "identifier": "com.rustfileeditor.dev",
       "icon": []
     },
     "security": {
@@ -26,7 +27,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "Rust Editor GUI",
+        "title": "Rust File Editor",
         "width": 800
       }
     ]

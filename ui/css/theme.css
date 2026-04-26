@@ -1,0 +1,80 @@
+body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background-color: #1e1e1e;
+    color: #cccccc;
+}
+
+#topbar {
+    background-color: #333333;
+    border-bottom: 1px solid #252526;
+}
+
+.menu-item {
+    padding: 5px 10px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background-color: #505050;
+}
+
+#sidebar {
+    background-color: #252526;
+    border-right: 1px solid #333333;
+}
+
+.sidebar-header {
+    padding: 10px 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.file-item {
+    padding: 4px 10px 4px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    gap: 6px;
+}
+
+.file-item:hover {
+    background-color: #2a2d2e;
+    color: #ffffff;
+}
+
+#tabs-container {
+    background-color: #252526;
+}
+
+.tab {
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #2d2d2d;
+    border-right: 1px solid #1e1e1e;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.tab.active {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+.tab-close {
+    font-size: 16px;
+}
+
+.tab-close:hover {
+    color: #ff5555;
+}
+
+#editor {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border: none;
+    font-family: "Consolas", monospace;
+    font-size: 15px;
+}

@@ -2,28 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Rust Editor</title>
-    <style>
-        body {
-            background-color: "#1e1e1e";
-            color: "#d4d4d4";
-            font-family: "Consolas", monospace;
-            padding: "20px";
-            margin: "0";
-        }
-        #editor {
-            white-space: "pre-wrap";
-        }
-    </style>
+    <title>Rust Editor GUI</title>
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
-    <div id="editor"></div>
-    <script>
-        const invoke = window.__TAURI__.invoke;
-        
-        invoke("get_document_content").then((content) => {
-            document.getElementById("editor").innerText = content;
-        });
-    </script>
+    <div id="topbar">
+        <div class="menu-item">File</div>
+        <div class="menu-item">Edit</div>
+        <div class="menu-item">Selection</div>
+        <div class="menu-item">View</div>
+        <div class="menu-item">Help</div>
+    </div>
+    <div id="main-container">
+        <aside id="sidebar">
+            <div class="sidebar-header">Explorer</div>
+            <ul id="file-list"></ul>
+        </aside>
+        <div id="editor-area">
+            <div id="tabs-container"></div>
+            <textarea id="editor" spellcheck="false"></textarea>
+        </div>
+    </div>
+    <script src="js/state.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
