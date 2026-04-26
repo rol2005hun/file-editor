@@ -4,14 +4,14 @@ pub mod layout_helpers;
 pub mod popup;
 pub mod sidebar;
 
-use crate::tui::app::App;
+use crate::core::app::App;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     Frame,
 };
 
-pub fn render(f: &mut Frame, app: &mut App) {
-    let mut vertical_constraints: Vec<Constraint> = vec![Constraint::Min(0)];
+pub fn render(f: &mut Frame, app: &mut App) -> (Rect, Rect, Option<Rect>) {
+    let mut vertical_constraints = vec![Constraint::Min(0)];
 
     if app.config.show_status_bar {
         vertical_constraints.push(Constraint::Length(3));
@@ -20,23 +20,23 @@ pub fn render(f: &mut Frame, app: &mut App) {
         vertical_constraints.push(Constraint::Length(3));
     }
 
-    let vertical_chunks: std::rc::Rc<[Rect]> = Layout::default()
+    let vertical_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints(vertical_constraints)
         .split(f.area());
 
-    let horizontal_chunks: std::rc::Rc<[Rect]> = Layout::default()
+    let horizontal_chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(20), Constraint::Percentage(80)])
         .split(vertical_chunks[0]);
 
-    app.explorer_area = horizontal_chunks[0];
-    app.editor_area = horizontal_chunks[1];
+    let explorer_area = horizontal_chunks[0];
+    let editor_area = horizontal_chunks[1];
 
-    sidebar::render(f, app, app.explorer_area);
-    editor::render(f, app, app.editor_area);
+    sidebar::render(f, app, explorer_area);
+    editor::render(f, app, editor_area);
 
-    let mut current_bottom_chunk: usize = 1;
+    let mut current_bottom_chunk = 1;
 
     if app.config.show_status_bar {
         footer::render_status(f, app, vertical_chunks[current_bottom_chunk]);
@@ -47,5 +47,7 @@ pub fn render(f: &mut Frame, app: &mut App) {
         footer::render_help(f, app, vertical_chunks[current_bottom_chunk]);
     }
     
-    popup::render(f, app);
+    let popup_area = popup::render(f, app);
+
+    (explorer_area, editor_area, popup_area)
 }

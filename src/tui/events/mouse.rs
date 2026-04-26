@@ -1,21 +1,28 @@
 use crate::core::document::Document;
-use crate::tui::app::{App, AppFocus, AppMode};
+use crate::core::app::{App, AppFocus, AppMode};
 use crossterm::event::{self, MouseEvent, MouseEventKind};
+use ratatui::layout::Rect;
 
-pub fn handle_mouse(app: &mut App, mouse_event: MouseEvent) {
+pub fn handle_mouse(
+    app: &mut App, 
+    mouse_event: MouseEvent, 
+    explorer_area: Rect, 
+    editor_area: Rect, 
+    popup_area: Option<Rect>
+) {
     match mouse_event.kind {
         MouseEventKind::Down(event::MouseButton::Left) => {
             if !matches!(app.mode, AppMode::Editor) {
-                if let Some(popup_area) = app.popup_area {
-                    if mouse_event.column >= popup_area.x
-                        && mouse_event.column < popup_area.x + popup_area.width
-                        && mouse_event.row >= popup_area.y
-                        && mouse_event.row < popup_area.y + popup_area.height
+                if let Some(p_area) = popup_area {
+                    if mouse_event.column >= p_area.x
+                        && mouse_event.column < p_area.x + p_area.width
+                        && mouse_event.row >= p_area.y
+                        && mouse_event.row < p_area.y + p_area.height
                     {
-                        if mouse_event.row >= popup_area.y + 1
-                            && mouse_event.row < popup_area.y + popup_area.height - 1
+                        if mouse_event.row >= p_area.y + 1
+                            && mouse_event.row < p_area.y + p_area.height - 1
                         {
-                            let clicked_index = (mouse_event.row - popup_area.y - 1) as usize;
+                            let clicked_index = (mouse_event.row - p_area.y - 1) as usize;
                             
                             if let AppMode::Menu = app.mode {
                                 if clicked_index < app.menu_items.len() {
@@ -33,31 +40,29 @@ pub fn handle_mouse(app: &mut App, mouse_event: MouseEvent) {
                         app.mode = AppMode::Editor;
                     }
                 }
-
                 return;
             }
 
-            if mouse_event.column >= app.explorer_area.x
-                && mouse_event.column < app.explorer_area.x + app.explorer_area.width
-                && mouse_event.row >= app.explorer_area.y
-                && mouse_event.row < app.explorer_area.y + app.explorer_area.height
+            if mouse_event.column >= explorer_area.x
+                && mouse_event.column < explorer_area.x + explorer_area.width
+                && mouse_event.row >= explorer_area.y
+                && mouse_event.row < explorer_area.y + explorer_area.height
             {
                 app.focus = AppFocus::Explorer;
 
-                if mouse_event.row >= app.explorer_area.y + 1
-                    && mouse_event.row < app.explorer_area.y + app.explorer_area.height - 1
+                if mouse_event.row >= explorer_area.y + 1
+                    && mouse_event.row < explorer_area.y + explorer_area.height - 1
                 {
-                    let clicked_index: usize =
-                        (mouse_event.row - (app.explorer_area.y + 1)) as usize;
+                    let clicked_index = (mouse_event.row - (explorer_area.y + 1)) as usize;
 
-                    if clicked_index < app.explorer.items.len() {
+                    if let Some(path) = app.explorer.items.get(clicked_index) {
+                        let path_clone = path.clone();
                         app.explorer.selected = clicked_index;
-                        let path: std::path::PathBuf = app.explorer.items[clicked_index].clone();
 
-                        if path.is_dir() {
-                            app.explorer.current_path = path;
+                        if path_clone.is_dir() {
+                            app.explorer.current_path = path_clone;
                             let _ = app.explorer.refresh();
-                        } else if let Ok(doc) = Document::open(&path) {
+                        } else if let Ok(doc) = Document::open(&path_clone) {
                             app.document = doc;
                             app.cursor_x = 0;
                             app.cursor_y = 0;
@@ -67,52 +72,38 @@ pub fn handle_mouse(app: &mut App, mouse_event: MouseEvent) {
                         }
                     }
                 }
-            } else if mouse_event.column >= app.editor_area.x
-                && mouse_event.column < app.editor_area.x + app.editor_area.width
-                && mouse_event.row >= app.editor_area.y
-                && mouse_event.row < app.editor_area.y + app.editor_area.height
+            } else if mouse_event.column >= editor_area.x
+                && mouse_event.column < editor_area.x + editor_area.width
+                && mouse_event.row >= editor_area.y
+                && mouse_event.row < editor_area.y + editor_area.height
             {
                 app.focus = AppFocus::Editor;
-                
                 app.selection_start = None;
 
-                if mouse_event.column >= app.editor_area.x + 1
-                    && mouse_event.column < app.editor_area.x + app.editor_area.width - 1
-                    && mouse_event.row >= app.editor_area.y + 1
-                    && mouse_event.row < app.editor_area.y + app.editor_area.height - 1
+                if mouse_event.column >= editor_area.x + 1
+                    && mouse_event.column < editor_area.x + editor_area.width - 1
+                    && mouse_event.row >= editor_area.y + 1
+                    && mouse_event.row < editor_area.y + editor_area.height - 1
                 {
-                    let click_x: u16 = mouse_event
-                        .column
-                        .saturating_sub(app.editor_area.x + 1)
-                        + app.scroll_x;
-                    let click_y: u16 = mouse_event
-                        .row
-                        .saturating_sub(app.editor_area.y + 1)
-                        + app.scroll_y;
+                    let click_x = mouse_event.column - (editor_area.x + 1) + app.scroll_x;
+                    let click_y = mouse_event.row - (editor_area.y + 1) + app.scroll_y;
                     app.handle_click(click_x, click_y);
                 }
             }
         }
         MouseEventKind::Drag(event::MouseButton::Left) => {
             if let AppFocus::Editor = app.focus {
-                if mouse_event.column >= app.editor_area.x + 1
-                    && mouse_event.column < app.editor_area.x + app.editor_area.width - 1
-                    && mouse_event.row >= app.editor_area.y + 1
-                    && mouse_event.row < app.editor_area.y + app.editor_area.height - 1
+                if mouse_event.column >= editor_area.x + 1
+                    && mouse_event.column < editor_area.x + editor_area.width - 1
+                    && mouse_event.row >= editor_area.y + 1
+                    && mouse_event.row < editor_area.y + editor_area.height - 1
                 {
                     if app.selection_start.is_none() {
                         app.selection_start = Some((app.cursor_x, app.cursor_y));
                     }
 
-                    let drag_x: u16 = mouse_event
-                        .column
-                        .saturating_sub(app.editor_area.x + 1)
-                        + app.scroll_x;
-                    let drag_y: u16 = mouse_event
-                        .row
-                        .saturating_sub(app.editor_area.y + 1)
-                        + app.scroll_y;
-                        
+                    let drag_x = mouse_event.column - (editor_area.x + 1) + app.scroll_x;
+                    let drag_y = mouse_event.row - (editor_area.y + 1) + app.scroll_y;
                     app.handle_click(drag_x, drag_y);
                 }
             }

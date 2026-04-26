@@ -1,4 +1,4 @@
-use crate::tui::app::App;
+use crate::core::app::App;
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
@@ -14,12 +14,12 @@ pub struct FileNode {
 
 #[tauri::command]
 pub fn get_explorer_items(state: State<'_, Arc<Mutex<App>>>) -> Vec<FileNode> {
-    let app: std::sync::MutexGuard<'_, App> = state.lock().unwrap();
+    let app = state.lock().unwrap();
     let mut nodes: Vec<FileNode> = Vec::new();
 
     for path in &app.explorer.items {
-        let is_parent: bool = Some(path.as_path()) == app.explorer.current_path.parent();
-        let name: String = if is_parent {
+        let is_parent = Some(path.as_path()) == app.explorer.current_path.parent();
+        let name = if is_parent {
             String::from("..")
         } else {
             path.file_name().unwrap_or_default().to_string_lossy().into_owned()
@@ -36,8 +36,8 @@ pub fn get_explorer_items(state: State<'_, Arc<Mutex<App>>>) -> Vec<FileNode> {
 
 #[tauri::command]
 pub fn open_path(state: State<'_, Arc<Mutex<App>>>, path: String) -> Result<(), String> {
-    let mut app: std::sync::MutexGuard<'_, App> = state.lock().unwrap();
-    let p: PathBuf = PathBuf::from(path);
+    let mut app = state.lock().unwrap();
+    let p = PathBuf::from(path);
     app.explorer.current_path = p;
     app.explorer.refresh().map_err(|e| e.to_string())?;
     Ok(())
@@ -55,13 +55,13 @@ pub fn save_file(path: String, content: String) -> Result<(), String> {
 
 #[tauri::command]
 pub fn create_file(state: State<'_, Arc<Mutex<App>>>, name: String) -> Result<(), String> {
-    let mut app: std::sync::MutexGuard<'_, App> = state.lock().unwrap();
+    let mut app = state.lock().unwrap();
     app.explorer.create_file(&name).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 pub fn create_dir(state: State<'_, Arc<Mutex<App>>>, name: String) -> Result<(), String> {
-    let mut app: std::sync::MutexGuard<'_, App> = state.lock().unwrap();
+    let mut app = state.lock().unwrap();
     app.explorer.create_dir(&name).map_err(|e| e.to_string())
 }
 
@@ -71,7 +71,7 @@ pub fn exit_app(app_handle: AppHandle) {
 }
 
 #[tauri::command]
-pub fn search_in_file(state: tauri::State<'_, std::sync::Arc<std::sync::Mutex<App>>>, pattern: String) -> Vec<usize> {
+pub fn search_in_file(state: State<'_, Arc<Mutex<App>>>, pattern: String) -> Vec<usize> {
     let app = state.lock().unwrap();
     app.find_line(&pattern)
 }

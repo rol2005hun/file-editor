@@ -10,8 +10,8 @@ pub struct Explorer {
 
 impl Explorer {
     pub fn new() -> Result<Self> {
-        let current_path: PathBuf = std::env::current_dir()?;
-        let mut exp: Explorer = Self {
+        let current_path = std::env::current_dir()?;
+        let mut exp = Self {
             current_path,
             items: Vec::new(),
             selected: 0,
@@ -25,12 +25,13 @@ impl Explorer {
         if let Some(parent) = self.current_path.parent() {
             self.items.push(parent.to_path_buf());
         }
-        let mut dirs: Vec<PathBuf> = Vec::new();
-        let mut files: Vec<PathBuf> = Vec::new();
+        
+        let mut dirs = Vec::new();
+        let mut files = Vec::new();
 
         if let Ok(entries) = fs::read_dir(&self.current_path) {
             for entry in entries.flatten() {
-                let path: PathBuf = entry.path();
+                let path = entry.path();
                 if path.is_dir() {
                     dirs.push(path);
                 } else {
@@ -38,6 +39,7 @@ impl Explorer {
                 }
             }
         }
+        
         dirs.sort();
         files.sort();
         self.items.extend(dirs);
@@ -62,14 +64,14 @@ impl Explorer {
     }
 
     pub fn create_file(&mut self, name: &str) -> Result<()> {
-        let path: PathBuf = self.current_path.join(name);
+        let path = self.current_path.join(name);
         fs::write(&path, "")?;
         self.refresh()?;
         Ok(())
     }
 
     pub fn create_dir(&mut self, name: &str) -> Result<()> {
-        let path: PathBuf = self.current_path.join(name);
+        let path = self.current_path.join(name);
         fs::create_dir(&path)?;
         self.refresh()?;
         Ok(())

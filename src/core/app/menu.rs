@@ -1,4 +1,4 @@
-use crate::tui::app::{App, AppMode};
+use crate::core::app::{App, AppMode};
 
 impl App {
     pub fn toggle_menu(&mut self) {
@@ -27,43 +27,27 @@ impl App {
 
     pub fn execute_menu_action(&mut self) {
         match self.menu_selection {
-            0 => {
-                self.mode = AppMode::PromptFile(String::new());
-            }
-            1 => {
-                self.mode = AppMode::PromptDir(String::new());
-            }
+            0 => self.mode = AppMode::PromptFile(String::new()),
+            1 => self.mode = AppMode::PromptDir(String::new()),
             2 => {
                 let _ = self.document.save();
                 self.mode = AppMode::Editor;
             }
-            3 => {
-                self.mode = AppMode::Settings(0);
-            }
-            4 => {
-                self.should_quit = true;
-            }
+            3 => self.mode = AppMode::Settings(0),
+            4 => self.should_quit = true,
             _ => {}
         }
     }
 
     pub fn settings_up(&mut self) {
         if let AppMode::Settings(selection) = self.mode {
-            if selection > 0 {
-                self.mode = AppMode::Settings(selection - 1);
-            } else {
-                self.mode = AppMode::Settings(3);
-            }
+            self.mode = AppMode::Settings(if selection > 0 { selection - 1 } else { 3 });
         }
     }
 
     pub fn settings_down(&mut self) {
         if let AppMode::Settings(selection) = self.mode {
-            if selection < 3 {
-                self.mode = AppMode::Settings(selection + 1);
-            } else {
-                self.mode = AppMode::Settings(0);
-            }
+            self.mode = AppMode::Settings(if selection < 3 { selection + 1 } else { 0 });
         }
     }
 

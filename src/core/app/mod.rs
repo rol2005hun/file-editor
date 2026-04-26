@@ -5,7 +5,6 @@ pub mod menu;
 use crate::core::config::AppConfig;
 use crate::core::document::Document;
 use crate::core::explorer::Explorer;
-use ratatui::layout::Rect;
 
 pub enum AppMode {
     Editor,
@@ -30,9 +29,6 @@ pub struct App {
     pub scroll_y: u16,
     pub selection_start: Option<(u16, u16)>,
     pub history: Vec<(Vec<String>, u16, u16)>,
-    pub editor_area: Rect,
-    pub explorer_area: Rect,
-    pub popup_area: Option<Rect>,
     pub mode: AppMode,
     pub focus: AppFocus,
     pub menu_items: Vec<String>,
@@ -42,7 +38,7 @@ pub struct App {
 
 impl App {
     pub fn new() -> Self {
-        let explorer: Explorer = Explorer::new().unwrap_or_else(|_| Explorer {
+        let explorer = Explorer::new().unwrap_or_else(|_| Explorer {
             current_path: std::path::PathBuf::from("."),
             items: Vec::new(),
             selected: 0,
@@ -58,9 +54,6 @@ impl App {
             scroll_y: 0,
             selection_start: None,
             history: Vec::new(),
-            editor_area: Rect::default(),
-            explorer_area: Rect::default(),
-            popup_area: None,
             mode: AppMode::Editor,
             focus: AppFocus::Explorer,
             menu_items: vec![

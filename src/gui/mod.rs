@@ -1,6 +1,6 @@
 pub mod commands;
 
-use crate::tui::app::App;
+use crate::core::app::App;
 use std::sync::{Arc, Mutex};
 
 pub fn run_gui(state: Arc<Mutex<App>>) {

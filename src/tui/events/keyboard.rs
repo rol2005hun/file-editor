@@ -1,9 +1,9 @@
 use crate::core::document::Document;
-use crate::tui::app::{App, AppFocus, AppMode};
+use crate::core::app::{App, AppFocus, AppMode};
 use crossterm::event::KeyCode;
 
 pub fn handle_key(app: &mut App, code: KeyCode) {
-    let mut mode_transition: Option<AppMode> = None;
+    let mut mode_transition = None;
 
     match app.mode {
         AppMode::Settings(_) => match code {
@@ -16,27 +16,23 @@ pub fn handle_key(app: &mut App, code: KeyCode) {
         AppMode::PromptFile(ref mut input) => match code {
             KeyCode::Esc => mode_transition = Some(AppMode::Editor),
             KeyCode::Enter => {
-                let text: String = input.clone();
+                let text = input.clone();
                 let _ = app.explorer.create_file(&text);
                 mode_transition = Some(AppMode::Editor);
             }
             KeyCode::Char(c) => input.push(c),
-            KeyCode::Backspace => {
-                input.pop();
-            }
+            KeyCode::Backspace => { input.pop(); }
             _ => {}
         },
         AppMode::PromptDir(ref mut input) => match code {
             KeyCode::Esc => mode_transition = Some(AppMode::Editor),
             KeyCode::Enter => {
-                let text: String = input.clone();
+                let text = input.clone();
                 let _ = app.explorer.create_dir(&text);
                 mode_transition = Some(AppMode::Editor);
             }
             KeyCode::Char(c) => input.push(c),
-            KeyCode::Backspace => {
-                input.pop();
-            }
+            KeyCode::Backspace => { input.pop(); }
             _ => {}
         },
         AppMode::Editor => {
@@ -66,12 +62,8 @@ pub fn handle_key(app: &mut App, code: KeyCode) {
                                 }
                             }
                         }
-                        KeyCode::Char('n') => {
-                            mode_transition = Some(AppMode::PromptFile(String::new()));
-                        }
-                        KeyCode::Char('d') => {
-                            mode_transition = Some(AppMode::PromptDir(String::new()));
-                        }
+                        KeyCode::Char('n') => mode_transition = Some(AppMode::PromptFile(String::new())),
+                        KeyCode::Char('d') => mode_transition = Some(AppMode::PromptDir(String::new())),
                         _ => {}
                     },
                     AppFocus::Editor => match code {

@@ -7,11 +7,11 @@ pub struct Document {
     pub path: Option<String>,
 }
 
-impl TryFrom<&str> for Document {
+impl TryFrom<String> for Document {
     type Error = EditorError;
 
-    fn try_from(content: &str) -> std::result::Result<Self, Self::Error> {
-        let mut rows: Vec<String> = content.lines().map(|line: &str| line.to_string()).collect();
+    fn try_from(content: String) -> std::result::Result<Self, Self::Error> {
+        let mut rows: Vec<String> = content.lines().map(|line| line.to_string()).collect();
         if rows.is_empty() {
             rows.push(String::new());
         }
@@ -20,14 +20,6 @@ impl TryFrom<&str> for Document {
 }
 
 impl Document {
-    pub fn open<P: AsRef<Path>>(filename: P) -> Result<Self> {
-        let path_str: String = filename.as_ref().to_string_lossy().into_owned();
-        let content: String = fs::read_to_string(filename)?;
-        let mut doc: Document = Document::try_from(content.as_str())?;
-        doc.path = Some(path_str);
-        Ok(doc)
-    }
-
     pub fn new() -> Self {
         Document {
             rows: vec![String::new()],
@@ -35,9 +27,17 @@ impl Document {
         }
     }
 
+    pub fn open<P: AsRef<Path>>(filename: P) -> Result<Self> {
+        let path_str = filename.as_ref().to_string_lossy().into_owned();
+        let content = fs::read_to_string(&filename)?;
+        let mut doc = Document::try_from(content)?;
+        doc.path = Some(path_str);
+        Ok(doc)
+    }
+
     pub fn save(&self) -> Result<()> {
         if let Some(path) = &self.path {
-            let content: String = self.rows.join("\n");
+            let content = self.rows.join("\n");
             fs::write(path, content)?;
         }
         Ok(())
@@ -45,7 +45,7 @@ impl Document {
 
     pub fn insert(&mut self, x: usize, y: usize, c: char) {
         if y < self.rows.len() {
-            let row: &mut String = &mut self.rows[y];
+            let row = &mut self.rows[y];
             if x <= row.len() {
                 row.insert(x, c);
             } else {
@@ -56,7 +56,7 @@ impl Document {
 
     pub fn delete(&mut self, x: usize, y: usize) {
         if y < self.rows.len() {
-            let row: &mut String = &mut self.rows[y];
+            let row = &mut self.rows[y];
             if x > 0 && x <= row.len() {
                 row.remove(x - 1);
             }
@@ -65,8 +65,8 @@ impl Document {
 
     pub fn insert_newline(&mut self, x: usize, y: usize) {
         if y < self.rows.len() {
-            let row: &mut String = &mut self.rows[y];
-            let new_row: String = if x < row.len() {
+            let row = &mut self.rows[y];
+            let new_row = if x < row.len() {
                 row.split_off(x)
             } else {
                 String::new()
