@@ -13,7 +13,8 @@ pub fn run_gui(state: Arc<Mutex<App>>) {
             commands::save_file,
             commands::create_file,
             commands::create_dir,
-            commands::exit_app
+            commands::exit_app,
+            commands::search_in_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

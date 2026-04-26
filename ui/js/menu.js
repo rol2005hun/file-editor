@@ -1,108 +1,67 @@
-const invoke = window.__TAURI__.invoke;
-const fileList = document.getElementById('file-list');
-const tabsContainer = document.getElementById('tabs-container');
+const fileMenuItems = document.querySelectorAll('.menu-item');
+const helpModal = document.getElementById('help-modal-overlay');
+const explorerCtx = document.getElementById('explorer-context-menu');
+const editorCtx = document.getElementById('editor-context-menu');
 
-const cm = CodeMirror(document.getElementById('real-editor'), {
-    lineNumbers: true,
-    theme: 'vscode-dark',
-    mode: 'rust',
-    indentUnit: 4,
-    tabSize: 4,
-    lineWrapping: true
+function closeAllMenus() {
+    document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
+    explorerCtx.classList.remove('show');
+    editorCtx.classList.remove('show');
+}
+
+fileMenuItems.forEach(item => {
+    item.addEventListener('click', e => {
+        e.stopPropagation();
+        const menuId = item.getAttribute('data-menu');
+        const target = document.getElementById(menuId);
+        const isOpen = target && target.classList.contains('show');
+        closeAllMenus();
+        if (menuId && !isOpen) target.classList.add('show');
+    });
 });
 
-function getModeByPath(path) {
-    const ext = path.split('.').pop().toLowerCase();
-    const map = {
-        'rs': 'rust',
-        'js': 'javascript',
-        'ts': 'javascript',
-        'css': 'css',
-        'html': 'xml',
-        'toml': 'toml'
-    };
-    return map[ext] || 'text/plain';
-}
-
-function renderTabs() {
-    tabsContainer.innerHTML = '';
-    for (const file of appState.openFiles) {
-        const tab = document.createElement('div');
-        tab.className = file.path === appState.activeFilePath ? 'tab active' : 'tab';
-        
-        const title = document.createElement('span');
-        title.innerText = file.name;
-        title.onclick = () => {
-            appState.activeFilePath = file.path;
-            cm.setValue(file.content);
-            cm.setOption('mode', getModeByPath(file.path));
-            renderTabs();
-        };
-
-        const closeBtn = document.createElement('span');
-        closeBtn.className = 'tab-close';
-        closeBtn.innerText = '×';
-        closeBtn.onclick = (e) => {
-            e.stopPropagation();
-            removeTab(file.path);
-            const newActive = appState.openFiles.find((f) => f.path === appState.activeFilePath);
-            cm.setValue(newActive ? newActive.content : '');
-            if (newActive) cm.setOption('mode', getModeByPath(newActive.path));
-            renderTabs();
-        };
-
-        tab.appendChild(title);
-        tab.appendChild(closeBtn);
-        tabsContainer.appendChild(tab);
-    }
-}
-
-async function loadExplorer() {
-    try {
-        const items = await invoke('get_explorer_items');
-        fileList.innerHTML = '';
-        for (const item of items) {
-            const li = document.createElement('li');
-            li.className = 'file-item';
-            li.innerText = (item.is_dir ? '📁 ' : '📄 ') + item.name;
-            
-            li.onclick = async () => {
-                if (item.is_dir) {
-                    await invoke('open_path', { path: item.path });
-                    loadExplorer();
-                } else {
-                    const content = await invoke('read_file', { path: item.path });
-                    addTab(item.name, item.path, content);
-                    cm.setValue(content);
-                    cm.setOption('mode', getModeByPath(item.path));
-                    renderTabs();
-                }
-            };
-            fileList.appendChild(li);
-        }
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-cm.on('change', () => {
-    updateActiveContent(cm.getValue());
-});
-
-async function saveFile() {
-    if (appState.activeFilePath) {
-        await invoke('save_file', { 
-            path: appState.activeFilePath, 
-            content: cm.getValue() 
-        });
-    }
-}
-
-window.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === 's') {
-        e.preventDefault();
-        saveFile();
+document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    closeAllMenus();
+    let menu = null;
+    if (e.target.closest('#sidebar')) menu = explorerCtx;
+    else if (e.target.closest('#real-editor')) menu = editorCtx;
+    
+    if (menu) {
+        menu.style.top = `${e.pageY}px`;
+        menu.style.left = `${e.pageX}px`;
+        menu.classList.add('show');
     }
 });
 
-window.addEventListener('DOMContentLoaded', loadExplorer);
+document.addEventListener('click', closeAllMenus);
+
+async function handleNewFile() {
+    const n = prompt('New file name:');
+    if (n) {
+        await invoke('create_file', { name: n });
+        loadExplorer();
+    }
+}
+
+async function handleNewDir() {
+    const n = prompt('New directory name:');
+    if (n) {
+        await invoke('create_dir', { name: n });
+        loadExplorer();
+    }
+}
+
+document.getElementById('action-new-file').onclick = handleNewFile;
+document.getElementById('ctx-new-file').onclick = handleNewFile;
+document.getElementById('action-new-dir').onclick = handleNewDir;
+document.getElementById('ctx-new-dir').onclick = handleNewDir;
+document.getElementById('action-save').onclick = saveFile;
+document.getElementById('ctx-save').onclick = saveFile;
+document.getElementById('action-undo').onclick = () => cm.undo();
+document.getElementById('ctx-undo').onclick = () => cm.undo();
+document.getElementById('action-exit').onclick = () => invoke('exit_app');
+
+document.getElementById('action-help').onclick = () => helpModal.classList.add('show');
+document.getElementById('close-help').onclick = () => helpModal.classList.remove('show');
+document.getElementById('help-ok-btn').onclick = () => helpModal.classList.remove('show');

@@ -69,3 +69,9 @@ pub fn create_dir(state: State<'_, Arc<Mutex<App>>>, name: String) -> Result<(),
 pub fn exit_app(app_handle: AppHandle) {
     app_handle.exit(0);
 }
+
+#[tauri::command]
+pub fn search_in_file(state: tauri::State<'_, std::sync::Arc<std::sync::Mutex<App>>>, pattern: String) -> Vec<usize> {
+    let app = state.lock().unwrap();
+    app.find_line(&pattern)
+}

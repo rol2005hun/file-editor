@@ -36,9 +36,32 @@
             <ul id="file-list"></ul>
         </aside>
         <div id="editor-area">
-            <div id="tabs-container"></div>
-            <div id="real-editor"></div>
+            <div id="editor-placeholder">
+                <div class="placeholder-content">
+                    <h1>Rust File Editor</h1>
+                    <p>Select a file from the explorer to start editing</p>
+                    <div class="shortcuts-hint">
+                        <span>New File</span> <kbd>File > New File</kbd><br>
+                        <span>Save</span> <kbd>Ctrl + S</kbd><br>
+                        <span>Help</span> <kbd>Help</kbd>
+                    </div>
+                </div>
+            </div>
+            <div id="active-editor-view" style="display: none;">
+                <div id="tabs-container"></div>
+                <div id="real-editor"></div>
+            </div>
         </div>
+    </div>
+
+    <div id="explorer-context-menu" class="context-menu">
+        <div class="context-menu-item" id="ctx-new-file">New File</div>
+        <div class="context-menu-item" id="ctx-new-dir">New Directory</div>
+    </div>
+
+    <div id="editor-context-menu" class="context-menu">
+        <div class="context-menu-item" id="ctx-undo">Undo</div>
+        <div class="context-menu-item" id="ctx-save">Save</div>
     </div>
 
     <div id="help-modal-overlay" class="modal-overlay">
