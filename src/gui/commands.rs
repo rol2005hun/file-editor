@@ -3,7 +3,7 @@ use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, State, Manager};
 
 #[derive(Serialize)]
 pub struct FileNode {
@@ -67,7 +67,11 @@ pub fn create_dir(state: State<'_, Arc<Mutex<App>>>, name: String) -> Result<(),
 
 #[tauri::command]
 pub fn exit_app(app_handle: AppHandle) {
-    app_handle.exit(0);
+    if let Some(window) = app_handle.get_window("main") {
+        let _ = window.close();
+    } else {
+        app_handle.exit(0);
+    }
 }
 
 #[tauri::command]

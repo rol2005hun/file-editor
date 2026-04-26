@@ -91,12 +91,14 @@ fn main() -> std::result::Result<(), Box<dyn Error>> {
         DisableMouseCapture
     );
     let _ = terminal.show_cursor();
+    
+    let _ = io::stdout().flush();
 
     if let Err(err) = res {
         eprintln!("TUI Error: {:?}", err);
     }
 
-    std::process::exit(0);
+    Ok(())
 }
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, app_state: Arc<Mutex<App>>) -> io::Result<()>
@@ -104,21 +106,21 @@ where
     std::io::Error: From<B::Error>,
 {
     loop {
-        let mut app = app_state.lock().unwrap();
-        if app.should_quit { return Ok(()); }
-
         let mut explorer_area = Rect::default();
         let mut editor_area = Rect::default();
         let mut popup_area = None;
 
-        terminal.draw(|f| {
-            let (ex, ed, po) = render(f, &mut *app);
-            explorer_area = ex;
-            editor_area = ed;
-            popup_area = po;
-        })?;
+        {
+            let mut app = app_state.lock().unwrap();
+            if app.should_quit { return Ok(()); }
 
-        drop(app);
+            terminal.draw(|f| {
+                let (ex, ed, po) = render(f, &mut *app);
+                explorer_area = ex;
+                editor_area = ed;
+                popup_area = po;
+            })?;
+        }
         
         let mut app_to_handle = app_state.lock().unwrap();
         handle_events(&mut *app_to_handle, explorer_area, editor_area, popup_area)?;

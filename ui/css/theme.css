@@ -3,27 +3,33 @@ body {
     background-color: #1e1e1e;
     color: #cccccc;
 }
+
 #topbar {
     background-color: #333333;
     border-bottom: 1px solid #252526;
 }
+
 .menu-item {
     padding: 5px 10px;
     font-size: 13px;
     cursor: pointer;
 }
+
 .menu-item:hover {
     background-color: #505050;
 }
+
 #sidebar {
     background-color: #252526;
     border-right: 1px solid #333333;
 }
+
 .sidebar-header {
     padding: 10px 20px;
     font-size: 11px;
     text-transform: uppercase;
 }
+
 .file-item {
     padding: 4px 10px 4px 20px;
     cursor: pointer;
@@ -31,13 +37,16 @@ body {
     display: flex;
     gap: 6px;
 }
+
 .file-item:hover {
     background-color: #2a2d2e;
     color: #ffffff;
 }
+
 #tabs-container {
     background-color: #252526;
 }
+
 .tab {
     padding: 0 15px;
     display: flex;
@@ -48,58 +57,71 @@ body {
     cursor: pointer;
     font-size: 13px;
 }
+
 .tab.active {
     background-color: #1e1e1e;
     color: #ffffff;
 }
+
 .tab-close {
     font-size: 16px;
 }
+
 .tab-close:hover {
     color: #ff5555;
 }
+
 #editor-placeholder h1 {
     color: #3e3e3e;
     margin-bottom: 10px;
 }
+
 #editor-placeholder p {
     color: #858585;
 }
+
 .shortcuts-hint {
     margin-top: 20px;
     color: #606060;
     font-size: 13px;
 }
+
 .shortcuts-hint span {
     display: inline-block;
     width: 80px;
     text-align: right;
     margin-right: 10px;
 }
+
 kbd {
     background: #333;
     padding: 2px 5px;
     border-radius: 3px;
     color: #aaa;
 }
+
 .dropdown, .context-menu {
     background-color: #252526;
     border: 1px solid #454545;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
+
 .dropdown-item, .context-menu-item {
     padding: 6px 15px;
     font-size: 13px;
     color: #cccccc;
     cursor: pointer;
 }
+
 .dropdown-item:hover, .context-menu-item:hover {
     background-color: #04395e;
     color: #ffffff;
 }
+
 .dropdown-divider {
     background-color: #454545;
 }
+
 .modal-overlay {
     display: none;
     position: fixed;
@@ -112,15 +134,18 @@ kbd {
     justify-content: center;
     align-items: center;
 }
+
 .modal-overlay.show {
     display: flex;
 }
+
 .modal-content {
     background-color: #252526;
     border: 1px solid #454545;
     width: 400px;
     border-radius: 4px;
 }
+
 .modal-header {
     padding: 15px;
     background-color: #2d2d2d;
@@ -128,19 +153,23 @@ kbd {
     justify-content: space-between;
     border-bottom: 1px solid #3c3c3c;
 }
+
 .modal-close-icon {
     cursor: pointer;
 }
+
 .modal-body {
     padding: 20px;
     font-size: 14px;
 }
+
 .modal-footer {
     padding: 10px 15px;
     display: flex;
     justify-content: flex-end;
     border-top: 1px solid #3c3c3c;
 }
+
 #help-ok-btn {
     background-color: #0e639c;
     color: white;
@@ -148,14 +177,38 @@ kbd {
     padding: 6px 20px;
     cursor: pointer;
 }
+
 .CodeMirror {
     background-color: #1e1e1e !important;
     color: #d4d4d4 !important;
 }
+
+.CodeMirror-cursor {
+    border-left: 2px solid #ffffff !important;
+}
+
 .CodeMirror-gutters {
+    left: 5px!important;
     background-color: #1e1e1e !important;
     border-right: 1px solid #333333 !important;
 }
+
+.CodeMirror-selected {
+    background-color: #264f78 !important;
+}
+
+.CodeMirror-line > span {
+    margin-left: 10px;
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+    background-color: #264f78 !important;
+}
+
+.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection {
+    background: #264f78;
+}
+
 .cm-s-vscode-dark span.cm-keyword { color: #569cd6 !important; }
 .cm-s-vscode-dark span.cm-string { color: #ce9178 !important; }
 .cm-s-vscode-dark span.cm-number { color: #b5cea8 !important; }
