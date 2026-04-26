@@ -7,4 +7,10 @@ edition = "2024"
 arboard = "3.6.1"
 crossterm = "0.29.0"
 ratatui = "0.30.0"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+tauri = { version = "1.5", features = ["shell-open"] }
 thiserror = "2.0.18"
+
+[build-dependencies]
+tauri-build = "1.5"
