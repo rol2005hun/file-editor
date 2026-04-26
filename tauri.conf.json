@@ -1,0 +1,34 @@
+{
+  "build": {
+    "beforeBuildCommand": "",
+    "beforeDevCommand": "",
+    "devPath": "./ui",
+    "distDir": "./ui"
+  },
+  "package": {
+    "productName": "rust_editor",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true
+    },
+    "bundle": {
+      "active": false,
+      "identifier": "com.rusteditor.dev",
+      "icon": []
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 600,
+        "resizable": true,
+        "title": "Rust Editor GUI",
+        "width": 800
+      }
+    ]
+  }
+}

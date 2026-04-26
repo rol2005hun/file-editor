@@ -1,12 +1,24 @@
 use crate::tui::app::App;
 
 impl App {
+    pub fn prune_history(&mut self) {
+        while let Some(_) = self.history.get(50) {
+            self.history.remove(0);
+        }
+    }
+
+    pub fn find_line(&self, pattern: &str) -> Vec<usize> {
+        self.document.rows.iter()
+            .enumerate()
+            .filter(|(_, row)| row.contains(pattern))
+            .map(|(i, _)| i)
+            .collect()
+    }
+
     pub fn save_state(&mut self) {
         let state: (Vec<String>, u16, u16) = (self.document.rows.clone(), self.cursor_x, self.cursor_y);
         self.history.push(state);
-        if self.history.len() > 50 {
-            self.history.remove(0);
-        }
+        self.prune_history();
     }
 
     pub fn undo(&mut self) {
