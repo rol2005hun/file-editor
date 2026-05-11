@@ -3616,6 +3616,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "ranzak"
+version = "0.1.0"
+dependencies = [
+ "arboard",
+ "crossterm",
+ "ratatui",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "ratatui"
 version = "0.30.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3848,20 +3862,6 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "windows 0.37.0",
-]
-
-[[package]]
-name = "rust"
-version = "0.1.0"
-dependencies = [
- "arboard",
- "crossterm",
- "ratatui",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "thiserror 2.0.18",
 ]
 
 [[package]]
