@@ -13,8 +13,12 @@ OR
 
 `cargo run`
 
-To build:
+To build TUI:
 `cargo build --release`
+
+GUI:
+`cargo install tauri-cli`
+`cargo tauri build`
 
 # Used techniques
 
