@@ -1,6 +1,6 @@
 {
   "productName": "ranzaKode",
-  "version": "0.0.1-beta",
+  "version": "0.0.1-alpha.1",
   "identifier": "dev.ranzak.kode",
   "build": {
     "beforeBuildCommand": "",
@@ -8,6 +8,7 @@
     "frontendDist": "./ui"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "ranzaKode",
