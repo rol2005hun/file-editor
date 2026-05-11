@@ -67,7 +67,7 @@ pub fn create_dir(state: State<'_, Arc<Mutex<App>>>, name: String) -> Result<(),
 
 #[tauri::command]
 pub fn exit_app(app_handle: AppHandle) {
-    if let Some(window) = app_handle.get_window("main") {
+    if let Some(window) = app_handle.get_webview_window("main") {
         let _ = window.close();
     } else {
         app_handle.exit(0);

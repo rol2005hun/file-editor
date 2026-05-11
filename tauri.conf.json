@@ -1,35 +1,30 @@
 {
+  "productName": "ranzaKode",
+  "version": "0.0.1-beta",
+  "identifier": "dev.ranzak.kode",
   "build": {
     "beforeBuildCommand": "",
     "beforeDevCommand": "",
-    "devPath": "./ui",
-    "distDir": "./ui",
-    "withGlobalTauri": true
+    "frontendDist": "./ui"
   },
-  "package": {
-    "productName": "rust_file_editor",
-    "version": "0.1.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": true
-    },
-    "bundle": {
-      "active": false,
-      "identifier": "com.rustfileeditor.dev",
-      "icon": []
-    },
-    "security": {
-      "csp": null
-    },
+  "app": {
     "windows": [
       {
-        "fullscreen": false,
+        "title": "ranzaKode",
+        "width": 800,
         "height": 600,
-        "resizable": true,
-        "title": "Rust File Editor",
-        "width": 800
+        "resizable": true
       }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/logo.ico"
     ]
   }
 }
