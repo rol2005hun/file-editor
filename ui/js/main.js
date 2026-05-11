@@ -1,4 +1,4 @@
-const invoke = window.__TAURI__.invoke;
+const { invoke } = window.__TAURI__.core;
 const fileList = document.getElementById('file-list');
 const tabsContainer = document.getElementById('tabs-container');
 const placeholder = document.getElementById('editor-placeholder');
