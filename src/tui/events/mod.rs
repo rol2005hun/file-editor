@@ -8,10 +8,10 @@ use ratatui::layout::Rect;
 use std::io;
 
 pub fn handle_events(
-    app: &mut App, 
-    explorer_area: Rect, 
-    editor_area: Rect, 
-    popup_area: Option<Rect>
+    app: &mut App,
+    explorer_area: Rect,
+    editor_area: Rect,
+    popup_area: Option<Rect>,
 ) -> io::Result<()> {
     if event::poll(std::time::Duration::from_millis(16))? {
         match event::read()? {

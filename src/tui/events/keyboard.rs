@@ -1,5 +1,5 @@
-use crate::core::document::Document;
 use crate::core::app::{App, AppFocus, AppMode};
+use crate::core::document::Document;
 use crossterm::event::KeyCode;
 
 pub fn handle_key(app: &mut App, code: KeyCode) {
@@ -21,7 +21,9 @@ pub fn handle_key(app: &mut App, code: KeyCode) {
                 mode_transition = Some(AppMode::Editor);
             }
             KeyCode::Char(c) => input.push(c),
-            KeyCode::Backspace => { input.pop(); }
+            KeyCode::Backspace => {
+                input.pop();
+            }
             _ => {}
         },
         AppMode::PromptDir(ref mut input) => match code {
@@ -32,7 +34,9 @@ pub fn handle_key(app: &mut App, code: KeyCode) {
                 mode_transition = Some(AppMode::Editor);
             }
             KeyCode::Char(c) => input.push(c),
-            KeyCode::Backspace => { input.pop(); }
+            KeyCode::Backspace => {
+                input.pop();
+            }
             _ => {}
         },
         AppMode::Editor => {
@@ -62,8 +66,12 @@ pub fn handle_key(app: &mut App, code: KeyCode) {
                                 }
                             }
                         }
-                        KeyCode::Char('n') => mode_transition = Some(AppMode::PromptFile(String::new())),
-                        KeyCode::Char('d') => mode_transition = Some(AppMode::PromptDir(String::new())),
+                        KeyCode::Char('n') => {
+                            mode_transition = Some(AppMode::PromptFile(String::new()))
+                        }
+                        KeyCode::Char('d') => {
+                            mode_transition = Some(AppMode::PromptDir(String::new()))
+                        }
                         _ => {}
                     },
                     AppFocus::Editor => match code {

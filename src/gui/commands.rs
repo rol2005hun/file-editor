@@ -3,7 +3,7 @@ use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use tauri::{AppHandle, State, Manager};
+use tauri::{AppHandle, Manager, State};
 
 #[derive(Serialize)]
 pub struct FileNode {
@@ -22,7 +22,10 @@ pub fn get_explorer_items(state: State<'_, Arc<Mutex<App>>>) -> Vec<FileNode> {
         let name = if is_parent {
             String::from("..")
         } else {
-            path.file_name().unwrap_or_default().to_string_lossy().into_owned()
+            path.file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .into_owned()
         };
 
         nodes.push(FileNode {

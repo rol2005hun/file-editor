@@ -14,7 +14,9 @@ pub fn render(f: &mut Frame, app: &App, area: Rect) {
     };
 
     let bounds = app.get_selection_bounds();
-    let selection_style = Style::default().bg(Color::Rgb(0, 100, 200)).fg(Color::White);
+    let selection_style = Style::default()
+        .bg(Color::Rgb(0, 100, 200))
+        .fg(Color::White);
 
     let mut lines: Vec<Line> = Vec::new();
     for (i, row) in app.document.rows.iter().enumerate() {
@@ -30,7 +32,7 @@ pub fn render(f: &mut Frame, app: &App, area: Rect) {
         let is_active_line = app.config.highlight_active_line
             && matches!(app.focus, AppFocus::Editor)
             && i == (app.cursor_y as usize);
-            
+
         let active_line_style = if is_active_line && bounds.is_none() {
             Style::default().bg(Color::Rgb(40, 40, 40))
         } else {

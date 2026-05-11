@@ -6,7 +6,9 @@ pub fn handle_ctrl_shortcut(app: &mut App, code: KeyCode) {
     if let AppMode::Editor = app.mode {
         if let AppFocus::Editor = app.focus {
             match code {
-                KeyCode::Char('s') => { let _ = app.document.save(); }
+                KeyCode::Char('s') => {
+                    let _ = app.document.save();
+                }
                 KeyCode::Char('z') => app.undo(),
                 KeyCode::Char('c') => {
                     if let Ok(mut clipboard) = Clipboard::new() {

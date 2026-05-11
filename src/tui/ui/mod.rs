@@ -42,11 +42,11 @@ pub fn render(f: &mut Frame, app: &mut App) -> (Rect, Rect, Option<Rect>) {
         footer::render_status(f, app, vertical_chunks[current_bottom_chunk]);
         current_bottom_chunk += 1;
     }
-    
+
     if app.config.show_help_bar {
         footer::render_help(f, app, vertical_chunks[current_bottom_chunk]);
     }
-    
+
     let popup_area = popup::render(f, app);
 
     (explorer_area, editor_area, popup_area)

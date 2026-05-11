@@ -25,7 +25,7 @@ impl Explorer {
         if let Some(parent) = self.current_path.parent() {
             self.items.push(parent.to_path_buf());
         }
-        
+
         let mut dirs = Vec::new();
         let mut files = Vec::new();
 
@@ -39,7 +39,7 @@ impl Explorer {
                 }
             }
         }
-        
+
         dirs.sort();
         files.sort();
         self.items.extend(dirs);

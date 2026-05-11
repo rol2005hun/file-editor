@@ -2,6 +2,7 @@ mod core;
 mod gui;
 mod tui;
 
+use core::app::{App, AppFocus};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -19,15 +20,14 @@ use std::{
     path::PathBuf,
     sync::{Arc, Mutex},
 };
-use core::app::{App, AppFocus};
 use tui::events::handle_events;
 use tui::ui::render;
 
 fn main() -> std::result::Result<(), Box<dyn Error>> {
     let default_panic = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |info| {
-        let _ = disable_raw_mode();
         let _ = execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture);
+        let _ = disable_raw_mode();
         default_panic(info);
     }));
 
@@ -37,9 +37,15 @@ fn main() -> std::result::Result<(), Box<dyn Error>> {
     let mut ask_mode = true;
 
     for arg in args.iter().skip(1) {
-        if arg == "--gui" { is_gui = true; ask_mode = false; }
-        else if arg == "--tui" { is_gui = false; ask_mode = false; }
-        else if !arg.starts_with("--") { target_path = Some(arg.clone()); }
+        if arg == "--gui" {
+            is_gui = true;
+            ask_mode = false;
+        } else if arg == "--tui" {
+            is_gui = false;
+            ask_mode = false;
+        } else if !arg.starts_with("--") {
+            target_path = Some(arg.clone());
+        }
     }
 
     if ask_mode {
@@ -47,7 +53,9 @@ fn main() -> std::result::Result<(), Box<dyn Error>> {
         io::stdout().flush()?;
         let mut input = String::new();
         io::stdin().read_line(&mut input)?;
-        if input.trim() == "2" { is_gui = true; }
+        if input.trim() == "2" {
+            is_gui = true;
+        }
     }
 
     let mut initial_app = App::new();
@@ -84,14 +92,13 @@ fn main() -> std::result::Result<(), Box<dyn Error>> {
 
     let res = run_app(&mut terminal, Arc::clone(&app_state));
 
-    let _ = terminal.show_cursor();
-    let _ = disable_raw_mode();
     let _ = execute!(
-        io::stdout(),
+        terminal.backend_mut(),
         LeaveAlternateScreen,
         DisableMouseCapture
     );
-    let _ = io::stdout().flush();
+    let _ = terminal.show_cursor();
+    let _ = disable_raw_mode();
 
     if let Err(err) = res {
         eprintln!("TUI Error: {:?}", err);
@@ -111,7 +118,9 @@ where
 
         {
             let mut app = app_state.lock().unwrap();
-            if app.should_quit { return Ok(()); }
+            if app.should_quit {
+                return Ok(());
+            }
 
             terminal.draw(|f| {
                 let (ex, ed, po) = render(f, &mut *app);
@@ -120,7 +129,7 @@ where
                 popup_area = po;
             })?;
         }
-        
+
         let mut app_to_handle = app_state.lock().unwrap();
         handle_events(&mut *app_to_handle, explorer_area, editor_area, popup_area)?;
     }

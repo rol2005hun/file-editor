@@ -1,14 +1,14 @@
-use crate::core::document::Document;
 use crate::core::app::{App, AppFocus, AppMode};
+use crate::core::document::Document;
 use crossterm::event::{self, MouseEvent, MouseEventKind};
 use ratatui::layout::Rect;
 
 pub fn handle_mouse(
-    app: &mut App, 
-    mouse_event: MouseEvent, 
-    explorer_area: Rect, 
-    editor_area: Rect, 
-    popup_area: Option<Rect>
+    app: &mut App,
+    mouse_event: MouseEvent,
+    explorer_area: Rect,
+    editor_area: Rect,
+    popup_area: Option<Rect>,
 ) {
     match mouse_event.kind {
         MouseEventKind::Down(event::MouseButton::Left) => {
@@ -23,7 +23,7 @@ pub fn handle_mouse(
                             && mouse_event.row < p_area.y + p_area.height - 1
                         {
                             let clicked_index = (mouse_event.row - p_area.y - 1) as usize;
-                            
+
                             if let AppMode::Menu = app.mode {
                                 if clicked_index < app.menu_items.len() {
                                     app.menu_selection = clicked_index;
