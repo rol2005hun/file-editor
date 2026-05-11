@@ -13,6 +13,9 @@ OR
 
 `cargo run`
 
+To build:
+`cargo build --release`
+
 # Used techniques
 
 [while let](https://doc.rust-lang.org/rust-by-example/flow_control/while_let.html)
